@@ -1,0 +1,208 @@
+@startuml
+
+class Company {
+  + **id**: //UUID//
+  + **name**: //string//
+  + **logo**: //string//
+  + **totalColaborators**: //int//
+  + **primaryColor**: //string//
+  + **primaryfontColor**: //string//
+  + **secondaryColor**: //string//
+  + **secondaryFontColor**: //string//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class User {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **name**: //string//
+  + **email**: //string//
+  + **phone**: //string//
+  + **birthDate**: //Date//
+  + **recordCreationCount**: //int//
+  + **recordEditingCount**: //int//
+  + **recordDeletionCount**: //int//
+  + **lastAccess**: //Date//
+  + **password**: //string//
+  + **avatarImage**: //string//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class Zone {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **name**: //string//
+  + **totalSellers**: //int//
+  + **totalProvesSent**: //int//
+  + **totalTreinamentDones**: //int//
+  + **description**: //string//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class ProductContentBlock {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **productId**: //UUID//
+  + **title**: //string//
+  + **icon**: //string//
+  + **html**: //string//
+  + **order**: //int//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class ProductCategory {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **name**: //string//
+  + **description**: //string//
+  + **icon**: //string//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class Product {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **categoryId**: //UUID//
+  + **name**: //string//
+  + **description**: //string//
+  + **mainImage**: //string//
+  + **images**: //[]string//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class Prove {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **images**: //[]string//
+  + **productId**: //UUID//
+  + **sellerId**: //UUID//
+  + **proveLocation**: //geography//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class QuestionOption {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **QuetionId**: //UUID//
+  + **content**: //string//
+  + **isCorrect**: //boolean//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class Question {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **treinamentId**: //UUID//
+  + **enunciated**: //string//
+  + **optionIds**: //[]UUID//
+  + **timeout**: //int64//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class Treinament {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **productId**: //UUID//
+  + **questionIds**: //[]UUID//
+  + **enable**: //boolean//
+  + **minimumPercentageToPass**: //int//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class OptionSelected {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **treinamentId**: //UUID//
+  + **optionId**: //UUID//
+  + **treinamentDoneId**: //UUID//
+  + **sellerId**: //UUID//
+  + **isCorrectOption**: //boolean//
+  + **milisecondsDuration**: //int//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class TreinamentDone {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **treinamentId**: //UUID//
+  + **optionSelectedIds**: //[]UUID//
+  + **sellerId**: //UUID//
+  + **hitPercentage**: //int//
+  + **aproved**: //boolean//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class EmployeeType {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **name**: //string//
+  + **description**: //string//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+class Seller {
+  + **id**: //UUID//
+  + **companyId**: //UUID//
+  + **employeeTypeId**: //UUID//
+  + **provesSentIds**: //[]UUID//
+  + **treinamentDoneIds**: //[]UUID//
+  + **zoneId**: //UUID//
+  + **name**: //string//
+  + **email**: //string//
+  + **document**: //string//
+  + **phone**: //string//
+  + **birthDate**: //Date//
+  + **password**: //string//
+  + **enable**: //boolean//
+  + **totalProvesSent**: //int//
+  + **totalTreinamentsDone**: //int//
+  + **lastAccess**: //Date//
+  + **avatarImage**: //string//
+  + **createdAt**: //Date//
+  + **updatedAt**: //Date//
+}
+
+User "1" *-- "0..*" Company
+Seller "1" *-- "0..*" Company
+Zone "1" *-- "0..*" Company
+Prove "1" *-- "0..*" Company
+ProductContentBlock "1" *-- "0..*" Company
+ProductCategory "1" *-- "0..*" Company
+Product "1" *-- "0..*" Company
+QuestionOption "1" *-- "0..*" Company
+Question "1" *-- "0..*" Company
+Treinament "1" *-- "0..*" Company
+OptionSelected "1" *-- "0..*" Company
+TreinamentDone "1" *-- "0..*" Company
+Seller "1" *-- "0..*" Zone
+Seller "1" *-- "0..*" EmployeeType
+EmployeeType "1" *-- "0..*" Company
+Product "1" *-- "0..*" ProductCategory
+ProductContentBlock "1" *-- "0..*" Product
+Treinament "1" *-- "0..*" Product
+Question "1" *-- "1..*" Treinament
+QuestionOption "1" *-- "1..*" Question
+Prove "1" *-- "0..*" Seller
+Prove "1" *-- "0..*" Product
+OptionSelected "1" *-- "0..*" Treinament
+OptionSelected "1" *-- "0..*" QuestionOption
+OptionSelected "1" *-- "0..*" TreinamentDone
+OptionSelected "1" *-- "0..*" Seller
+TreinamentDone "1" *-- "0..*" Treinament
+TreinamentDone "1..*" *-- "1" OptionSelected
+TreinamentDone "1" *-- "0..*" Seller
+
+@enduml
