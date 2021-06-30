@@ -4,16 +4,21 @@ services:
   localstack:
     image: localstack/localstack
     ports:
+      - "443:443"
+      - "53:53"
+      - "${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}"
       - "4571:4571"
       - "4566:4566"
+      - "4510-4520:4510-4520"
     environment:
       -  DEFAULT_REGION=sa-east-1
-      - SERVICES=s3,dynamodb,sqs,secretsmanager,stepfunctions,s3api,route53,rds
-      - DATA_DIR=${DATA_DIR- }
-      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - SERVICES=s3,dynamodb,sqs,secretsmanager,stepfunctions,s3api,route53,rds,kms,sns,cloudformation,eks,apigateway
+      - DATA_DIR=/tmp/localstack/data
+      - HOST_TMP_FOLDER=${TMPDIR}
       - DOCKER_HOST=unix:///var/run/docker.sock
       - DEBUG=1
       - KINESIS_PROVIDER=kinesalite
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY}
 
     volumes:
       - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"

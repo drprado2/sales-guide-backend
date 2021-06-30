@@ -27,3 +27,6 @@ aws-list-s3:
 
 aws-list-dynamo-tables:
 	- aws --endpoint-url http://localhost:4566 dynamodb list-tables --region sa-east-1
+
+delete-localstack:
+	- cd eng/localstack && docker-compose down
