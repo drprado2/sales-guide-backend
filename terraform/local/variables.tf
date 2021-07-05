@@ -17,3 +17,7 @@ variable "s3_bucket_name" {
   type    = string
   default = "sandpit-sample"
 }
+
+variable "account" {
+  default = "sales-guide"
+}

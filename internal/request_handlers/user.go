@@ -3,11 +3,11 @@ package requesthandlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/drprado2/react-redux-typescript/internal/apptracer"
-	"github.com/drprado2/react-redux-typescript/internal/logs"
 	"github.com/drprado2/react-redux-typescript/internal/models"
 	playerModels "github.com/drprado2/react-redux-typescript/internal/models/players"
 	"github.com/drprado2/react-redux-typescript/internal/services/players"
+	apptracer2 "github.com/drprado2/react-redux-typescript/pkg/apptracer"
+	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -24,7 +24,7 @@ type UserHandlerInterface interface {
 
 type UserHandler struct {
 	UserService players.UserServiceInterface
-	Tracer apptracer.TracerService
+	Tracer      apptracer2.TracerService
 }
 
 func (h *UserHandler) Create(writter http.ResponseWriter, req *http.Request) {
@@ -107,12 +107,12 @@ func (h *UserHandler) Get(writter http.ResponseWriter, req *http.Request) {
 	currentPage, err := strconv.Atoi(req.URL.Query().Get("current_page"))
 	hasInvalidParameter := false
 	if err != nil {
-		logs.Logger(ctx).WithError(err).Warnf("Error casting current_page string parameter to int %v", err)
+		logs2.Logger(ctx).WithError(err).Warnf("Error casting current_page string parameter to int %v", err)
 		hasInvalidParameter = true
 	}
 	itemsByPage, err := strconv.Atoi(req.URL.Query().Get("items_by_page"))
 	if err != nil {
-		logs.Logger(ctx).WithError(err).Warnf("Error casting items_by_page string parameter to int %v", err)
+		logs2.Logger(ctx).WithError(err).Warnf("Error casting items_by_page string parameter to int %v", err)
 		hasInvalidParameter = true
 	}
 	playerId := req.URL.Query().Get("id")

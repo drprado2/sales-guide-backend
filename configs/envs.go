@@ -1,91 +1,55 @@
 package configs
 
 import (
-	"fmt"
-	"os"
-	"strconv"
+	"log"
+	"sync"
+
+	"github.com/gosidekick/goconfig"
 )
 
 const (
-	DeveloperEnvironment = "dev"
-	TestEnvironment = "test"
+	DeveloperEnvironment  = "dev"
+	TestEnvironment       = "test"
 	ProductionEnvironment = "prod"
 )
 
-type EnvsInterface interface {
-	GetServerPort() int
-	GetEnvironment() string
-	GetDbUser() string
-	GetDbPassword() string
-	GetDbName() string
+var (
+	doOnce sync.Once
+	env    *Environment
+)
+
+//Environment this object keep the all variables environment
+type Environment struct {
+	ServerPort         int    `cfg:"SERVER_PORT" cfgDefault:"5050" cfgRequired:"true"`
+	ServerEnvironment  string `cfg:"SERVER_ENVIRONMENT" cfgDefault:"dev" cfgRequired:"true"`
+	SystemVersion      string `cfg:"SYSTEM_VERSION" cfgDefault:"UNKNOWN" cfgRequired:"true"`
+	AppName            string `cfg:"APP_NAME" cfgDefault:"api-sales-guide" cfgRequired:"true"`
+	DbUser             string `cfg:"DB_USER" cfgDefault:"postgres" cfgRequired:"true"`
+	DbPass             string `cfg:"DB_PASS" cfgDefault:"admin123" cfgRequired:"true"`
+	DbName             string `cfg:"DB_NAME" cfgDefault:"sales-guide" cfgRequired:"true"`
+	DbHost             string `cfg:"DB_HOST" cfgDefault:"localhost" cfgRequired:"true"`
+	DbPort             int    `cfg:"DB_PORT" cfgDefault:"4611" cfgRequired:"true"`
+	ZipkinUrl          string `cfg:"ZIPKIN_URL" cfgDefault:"http://localhost:9411/api/v2/spans" cfgRequired:"true"`
+	AwsRegion          string `cfg:"AWS_REGION" cfgDefault:"sa-east-1" cfgRequired:"true"`
+	AwsAccessKey       string `cfg:"AWS_ACCESS_KEY_ID" cfgDefault:"sa-east-1" cfgRequired:"true"`
+	AwsSecretAccessKey string `cfg:"AWS_SECRET_ACCESS_KEY" cfgDefault:"sa-east-1" cfgRequired:"true"`
+	AwsEndpoint        string `cfg:"AWS_ENDPOINT" cfgDefault:"http://localhost:4566" cfgRequired:"true"`
 }
 
-type Envs struct {}
-
-func (*Envs) GetServerPort() int {
-	v := os.Getenv("SERVER_PORT")
-	if v != "" {
-		vi, err := strconv.Atoi(v)
+//Get return the instance of environment that keep the environment variables
+func Get() *Environment {
+	doOnce.Do(func() {
+		env = &Environment{}
+		err := goconfig.Parse(env)
 		if err != nil {
-			panic(fmt.Sprintf("fail getting server port env, %v", err))
+			log.Fatal(err)
 		}
-		return vi
-	}
-	return 5050
+	})
+	return env
 }
 
-func (*Envs) GetEnvironment() string {
-	v := os.Getenv("SERVER_ENVIRONMENT")
-	if v != "" {
-		return v
-	}
-	return DeveloperEnvironment
-}
-
-func (*Envs) GetDbUser() string {
-	v := os.Getenv("DB_USER")
-	if v != "" {
-		return v
-	}
-	return "postgres"
-}
-
-func (*Envs) GetDbPassword() string {
-	v := os.Getenv("DB_PASS")
-	if v != "" {
-		return v
-	}
-	return "admin123"
-}
-
-func (*Envs) GetDbName() string {
-	v := os.Getenv("DB_NAME")
-	if v != "" {
-		return v
-	}
-	return "poker-simulator"
-}
-
-func (*Envs) GetDbHost() string {
-	v := os.Getenv("DB_HOST")
-	if v != "" {
-		return v
-	}
-	return "localhost"
-}
-
-func (*Envs) GetDbPort() string {
-	v := os.Getenv("DB_PORT")
-	if v != "" {
-		return v
-	}
-	return "5432"
-}
-
-func (*Envs) GetZipkinUrl() string {
-	v := os.Getenv("ZIPKIN_URL")
-	if v != "" {
-		return v
-	}
-	return "http://localhost:9411/api/v2/spans"
+//Reset will reload the environment variables
+func Reset() *Environment {
+	doOnce = sync.Once{}
+	return Get()
 }

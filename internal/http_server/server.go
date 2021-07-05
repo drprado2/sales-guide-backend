@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/drprado2/react-redux-typescript/configs"
 	"github.com/drprado2/react-redux-typescript/internal/http_server/middlewares"
-	"github.com/drprado2/react-redux-typescript/internal/logs"
 	requesthandlers "github.com/drprado2/react-redux-typescript/internal/request_handlers"
+	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/felixge/fgprof"
 	"github.com/gorilla/mux"
 	zipkin "github.com/openzipkin/zipkin-go"
@@ -34,19 +34,19 @@ type Server struct {
 func (s *Server) Start() {
 	r := mux.NewRouter().StrictSlash(true)
 	ctx := context.Background()
-	logs.Logger(ctx).Infof("Starting http Server at port %v, with env %v", s.Envs.GetServerPort(), s.Envs.GetEnvironment())
+	logs2.Logger(ctx).Infof("Starting http Server at port %v, with env %v", s.Envs.GetServerPort(), s.Envs.GetEnvironment())
 
-	logs.Logger(ctx).Infof("registering middlewares")
+	logs2.Logger(ctx).Infof("registering middlewares")
 	s.registerMiddlewares(r)
-	logs.Logger(ctx).Infof("registering request handlers")
+	logs2.Logger(ctx).Infof("registering request handlers")
 	s.registerHandlers(r)
 
 	if s.Envs.GetEnvironment() == configs.DeveloperEnvironment {
 		go func() {
-			logs.Logger(ctx).Infof("starting pgprof server")
+			logs2.Logger(ctx).Infof("starting pgprof server")
 			http.DefaultServeMux.Handle("/debug/fgprof", fgprof.Handler())
 			if err := http.ListenAndServe(":6060", nil); err != nil {
-				logs.Logger(ctx).WithError(err).Error(err.Error())
+				logs2.Logger(ctx).WithError(err).Error(err.Error())
 			}
 		}()
 	}
@@ -64,13 +64,13 @@ func (s *Server) Start() {
 	}
 
 	if err := s.Server.ListenAndServe(); err != nil {
-		logs.Logger(ctx).WithError(err).Fatalf("Fail starting http Server, %v", err)
+		logs2.Logger(ctx).WithError(err).Fatalf("Fail starting http Server, %v", err)
 		panic(err)
 	}
 }
 
 func (s *Server) Shutdown(ctx context.Context) {
-	logs.Logger(ctx).Infof("shutting down http Server")
+	logs2.Logger(ctx).Infof("shutting down http Server")
 	s.Server.Shutdown(ctx)
 }
 
