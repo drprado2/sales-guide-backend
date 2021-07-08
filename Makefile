@@ -71,6 +71,14 @@ upload-good_by-s3:
 		rm good_by &&\
 		rm good_by.zip
 
+upload-api_gateway-s3:
+	- cd lambda/apiGatewayTest &&\
+		GOOS=linux go build api_gateway.go &&\
+		zip api_gateway.zip api_gateway &&\
+		aws s3 cp api_gateway.zip s3://sandpit-sample/v1.0.1/api_gateway.zip --endpoint-url http://localhost:4566 --region sa-east-1 &&\
+		rm api_gateway &&\
+		rm api_gateway.zip
+
 call-hello-world-lambda:
 	- aws lambda invoke --function-name HelloWorld --endpoint-url http://localhost:4566 --region sa-east-1 --payload '{ "name": "Adriano", "age": 27 }' --cli-binary-format raw-in-base64-out hello_world_resp.json &&\
   	  cat hello_world_resp.json &&\

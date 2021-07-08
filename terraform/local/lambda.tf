@@ -20,30 +20,45 @@ EOF
 
 resource "aws_lambda_function" "hello_world" {
   function_name = "HelloWorld"
-  handler          = "hello_world"
-  memory_size      = 128
-  timeout          = 2
+  handler = "hello_world"
+  memory_size = 128
+  timeout = 2
 
   # The bucket name as created earlier with "aws s3api create-bucket"
   s3_bucket = var.s3_bucket_name
-  s3_key    = "v1.0.2/hello_wolrd.zip"
+  s3_key = "v1.0.2/hello_wolrd.zip"
 
   runtime = "go1.x"
 
-  role          = aws_iam_role.iam_for_lambda.arn
+  role = aws_iam_role.iam_for_lambda.arn
 }
 
 resource "aws_lambda_function" "good_by" {
   function_name = "GoodBy"
-  handler          = "good_by"
-  memory_size      = 128
-  timeout          = 2
+  handler = "good_by"
+  memory_size = 128
+  timeout = 2
 
   # The bucket name as created earlier with "aws s3api create-bucket"
   s3_bucket = var.s3_bucket_name
-  s3_key    = "v1.0.0/good_by.zip"
+  s3_key = "v1.0.0/good_by.zip"
 
   runtime = "go1.x"
 
-  role          = aws_iam_role.iam_for_lambda.arn
+  role = aws_iam_role.iam_for_lambda.arn
+}
+
+resource "aws_lambda_function" "api_gateway_test" {
+  function_name = "ApiGatewayTest"
+  handler = "api_gateway"
+  memory_size = 128
+  timeout = 2
+
+  # The bucket name as created earlier with "aws s3api create-bucket"
+  s3_bucket = var.s3_bucket_name
+  s3_key = "v1.0.1/api_gateway.zip"
+
+  runtime = "go1.x"
+
+  role = aws_iam_role.iam_for_lambda.arn
 }
