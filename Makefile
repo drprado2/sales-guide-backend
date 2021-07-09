@@ -11,7 +11,7 @@ localstack-up:
 	- cd eng/localstack && TMPDIR=/private$TMPDIR docker-compose up
 
 localstack-up-force:
-	- cd eng/localstack && TMPDIR=/private$TMPDIR docker-compose up --force-recreate -V
+	- cd eng/localstack && docker-compose up --force-recreate -V
 
 create-localstack-terraform-bucket-state:
 	- aws --endpoint-url http://localhost:4566 s3api create-bucket --bucket terraform-state --region sa-east-1
@@ -30,6 +30,9 @@ aws-list-s3:
 
 aws-list-dynamo-tables:
 	- aws --endpoint-url http://localhost:4566 dynamodb list-tables --region sa-east-1
+
+aws-list-api-gateway:
+	- aws --endpoint-url http://localhost:4566 apigateway get-rest-apis --region sa-east-1
 
 delete-localstack:
 	- cd eng/localstack && docker-compose down
@@ -88,3 +91,8 @@ call-good_by-lambda:
 	- aws lambda invoke --function-name GoodBy --endpoint-url http://localhost:4566 --region sa-east-1 --payload '{ "name": "Adriano", "age": 27 }' --cli-binary-format raw-in-base64-out good_by_resp.json &&\
   	  cat good_by_resp.json &&\
   	  rm good_by_resp.json
+
+list-redis-groups:
+	- aws elasticache describe-replication-groups \
+      --endpoint-url http://localhost:4566 \
+      --region sa-east-1

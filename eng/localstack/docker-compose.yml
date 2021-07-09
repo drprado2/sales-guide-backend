@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:0.12.15
     ports:
       - "443:443"
       - "53:53"
@@ -12,7 +12,7 @@ services:
       - "4510-4520:4510-4520"
     environment:
       - DEFAULT_REGION=sa-east-1
-      - SERVICES=s3,dynamodb,sqs,secretsmanager,s3api,route53,kms,sns,cloudformation,eks,apigateway,lambda,cloudwatch,iam,ses,cognito-idp,cloudtrail,es,firehose,rds
+      - SERVICES=s3,dynamodb,sqs,secretsmanager,s3api,route53,kms,sns,cloudformation,eks,apigateway,lambda,cloudwatch,iam,ses,cognito-idp,cloudtrail,es,firehose,rds,elasticache,ssm
       - DATA_DIR=/tmp/localstack/data
       - HOST_TMP_FOLDER=${TMPDIR}
       - DOCKER_HOST=unix:///var/run/docker.sock
@@ -23,8 +23,13 @@ services:
       - SMTP_USER=estudo.async.hb@gmail.com
       - SMTP_PASS=Hbasync2018
       - SMTP_EMAIL=estudo.async.hb@gmail.com
-      - LAMBDA_EXECUTOR=docker
+      - LAMBDA_EXECUTOR=docker-reuse
       - LAMBDA_REMOTE_DOCKER=1
+      - DISABLE_CORS_CHECKS=1
+      - DISABLE_CUSTOM_CORS_S3=1
+      - DISABLE_CUSTOM_CORS_APIGATEWAY=1
+      - EXTRA_CORS_ALLOWED_ORIGINS=*
+      - EXTRA_CORS_ALLOWED_HEADERS=*
     volumes:
       - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"

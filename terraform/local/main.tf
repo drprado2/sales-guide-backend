@@ -39,5 +39,6 @@ provider "aws" {
     iam = "http://localhost:4566"
     ses = "http://localhost:4566"
     cloudtrail = "http://localhost:4566"
+    elasticache = "http://localhost:4566"
   }
 }

@@ -34,6 +34,10 @@ type Environment struct {
 	AwsAccessKey       string `cfg:"AWS_ACCESS_KEY_ID" cfgDefault:"sa-east-1" cfgRequired:"true"`
 	AwsSecretAccessKey string `cfg:"AWS_SECRET_ACCESS_KEY" cfgDefault:"sa-east-1" cfgRequired:"true"`
 	AwsEndpoint        string `cfg:"AWS_ENDPOINT" cfgDefault:"http://localhost:4566" cfgRequired:"true"`
+	RedisHost          string `cfg:"REDIS_HOST" cfgDefault:"localhost" cfgRequired:"true"`
+	RedisPort          int    `cfg:"REDIS_PORT" cfgDefault:"4511" cfgRequired:"true"`
+	RedisPass          string `cfg:"REDIS_PASS" cfgDefault:"" cfgRequired:"false"`
+	RedisDb            int    `cfg:"REDIS_DB" cfgDefault:"0" cfgRequired:"false"`
 }
 
 //Get return the instance of environment that keep the environment variables
