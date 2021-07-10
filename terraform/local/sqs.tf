@@ -27,3 +27,31 @@ resource "aws_sqs_queue" "test_queue_deadletter" {
     Environment = "develop"
   }
 }
+
+resource "aws_sqs_queue" "test_queue_fifo" {
+  name = "test_queue_fifo.fifo"
+  delay_seconds = 0
+  max_message_size = 2048
+  fifo_queue = true
+  content_based_deduplication = true
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 0
+  visibility_timeout_seconds = 2
+
+  tags = {
+    Environment = "develop"
+  }
+}
+
+resource "aws_sqs_queue" "test_queue_fifo_deadletter" {
+  name = "test_queue_fifo_dlq"
+  delay_seconds = 0
+  max_message_size = 2048
+  message_retention_seconds = 604800
+  receive_wait_time_seconds = 10
+  visibility_timeout_seconds = 10
+
+  tags = {
+    Environment = "develop"
+  }
+}

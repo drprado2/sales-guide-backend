@@ -11,6 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/kms v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.6.0
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.6.0
 	github.com/aws/smithy-go v1.5.0
 	github.com/felixge/fgprof v0.9.1
 	github.com/go-redis/redis/v8 v8.11.0
