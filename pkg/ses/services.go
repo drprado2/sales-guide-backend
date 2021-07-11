@@ -24,12 +24,20 @@ func Setup(ctx context.Context) error {
 	return nil
 }
 
-func SendEmailSvc(ctx context.Context, input *ses.SendEmailInput) error {
-	_, err := client.SendEmail(ctx, input)
+func SendEmailSvc(ctx context.Context, builder *EmailRawInputBuilder) error {
+	input, err := builder.Build()
+	if err != nil {
+		return err
+	}
+	_, err = client.SendEmail(ctx, input)
 	return err
 }
 
-func SendTemplatedEmailSvc(ctx context.Context, input *ses.SendTemplatedEmailInput) error {
-	_, err := client.SendTemplatedEmail(ctx, input)
+func SendTemplatedEmailSvc(ctx context.Context, builder *EmailTemplateInputBuilder) error {
+	input, err := builder.Build()
+	if err != nil {
+		return err
+	}
+	_, err = client.SendTemplatedEmail(ctx, input)
 	return err
 }

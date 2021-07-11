@@ -10,6 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.1.2
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/kms v1.4.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.11.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/ses v1.4.0
 	github.com/aws/aws-sdk-go-v2/service/sns v1.6.0

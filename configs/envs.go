@@ -38,6 +38,7 @@ type Environment struct {
 	RedisPort          int    `cfg:"REDIS_PORT" cfgDefault:"4511" cfgRequired:"true"`
 	RedisPass          string `cfg:"REDIS_PASS" cfgDefault:"" cfgRequired:"false"`
 	RedisDb            int    `cfg:"REDIS_DB" cfgDefault:"0" cfgRequired:"false"`
+	ForceS3PathStyle   bool   `cfg:"FORCE_S3_PATH_STYLE" cfgDefault:"true" cfgRequired:"false"`
 }
 
 //Get return the instance of environment that keep the environment variables

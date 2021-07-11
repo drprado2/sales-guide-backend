@@ -46,19 +46,16 @@ func TestSendRawEmail(t *testing.T) {
 		t.Errorf("expected error to be nil, got %v", err)
 	}
 
-	ipt, err := NewEmailBuilder().
+	builder := NewEmailBuilder().
 		WithSubject(Subject).
 		ToDestinations(Recipient).
 		WithCopyFor(CcRecipient, CcRecipient2).
 		FromSender(Sender).
 		AsRawBuilder().
 		WithHtmlContent(HtmlBody).
-		WithTextContent(TextBody).
-		Build()
-	if err != nil {
-		t.Errorf("expected error to be nil, got %v", err)
-	}
-	err = SendEmailSvc(ctx, ipt)
+		WithTextContent(TextBody)
+
+	err := SendEmailSvc(ctx, builder)
 	if err != nil {
 		t.Errorf("expected error to be nil, got %v", err)
 	}
@@ -83,18 +80,15 @@ func TestSendTemplatedEmail(t *testing.T) {
 		Favoriteanimal: "Cachorro",
 	}
 
-	ipt, err := NewEmailBuilder().
+	builder := NewEmailBuilder().
 		WithSubject(Subject).
 		ToDestinations(Recipient).
 		WithCopyFor(CcRecipient, CcRecipient2).
 		FromSender(Sender).
 		AsTemplatedBuilder().
-		WithTemplate("TestTemplate", data).
-		Build()
-	if err != nil {
-		t.Errorf("expected error to be nil, got %v", err)
-	}
-	err = SendTemplatedEmailSvc(ctx, ipt)
+		WithTemplate("TestTemplate", data)
+
+	err := SendTemplatedEmailSvc(ctx, builder)
 	if err != nil {
 		t.Errorf("expected error to be nil, got %v", err)
 	}

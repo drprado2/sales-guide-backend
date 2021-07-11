@@ -30,8 +30,12 @@ github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.0.0 h1:cHNur
 github.com/aws/aws-sdk-go-v2/service/internal/endpoint-discovery v1.0.0/go.mod h1:+66FlGqa06oNFJImpstlS7CFrGIL+lvSobhkY19ukSw=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.2.0 h1:g2npzssI/6XsoQaPYCxliMFeC5iNKKvO0aC+/wWOE0A=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.2.0/go.mod h1:a7XLWNKuVgOxjssEF019IiHPv35k8KHBaWv/wJAfi2A=
+github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.5.0 h1:6KmDU3XCGTcZlWPtP/gh7wYErrovnIxjX7um8iiuVsU=
+github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.5.0/go.mod h1:541bxEA+Z8quwit9ZT7uxv/l9xRz85/HS41l9OxOQdY=
 github.com/aws/aws-sdk-go-v2/service/kms v1.4.0 h1:UkCGdqvmfE7yaGsFN2f9z5haCExYYzyN6pKZrwMVIY4=
 github.com/aws/aws-sdk-go-v2/service/kms v1.4.0/go.mod h1:V6e8sisG/6MmLMjQWuYcPVpCSu++jmHpv1xH8j2uQcg=
+github.com/aws/aws-sdk-go-v2/service/s3 v1.11.0 h1:FuKlyrDBZBk0RFxjqFPtx9y/KDsxTa3MoFVUgIW9w3Q=
+github.com/aws/aws-sdk-go-v2/service/s3 v1.11.0/go.mod h1:zJe8mEFDS2F04nO0pKVBPfArAv2ycC6wt3ILvrV4SQw=
 github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.4.0 h1:ZbAoLM9/YQh+zV6PN9lG0kEIhUvCMcdPN7l/gBHKQKo=
 github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.4.0/go.mod h1:ohaAiY87rOsvnSnD2Fk79hSutpuz+f4XmnUPq4B52y8=
 github.com/aws/aws-sdk-go-v2/service/ses v1.4.0 h1:SQOf5Pyjew9CwkyLoU0XHmkMnOV/Quqf8sERFRanREA=
