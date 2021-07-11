@@ -19,9 +19,13 @@ services:
       - DEBUG=1
       - KINESIS_PROVIDER=kinesalite
       - LOCALSTACK_API_KEY=4utlOfXaWg
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_USER=estudo.async.hb@gmail.com
-      - SMTP_PASS=Hbasync2018
+#      - SMTP_HOST=smtp.gmail.com
+#      - SMTP_USER=estudo.async.hb@gmail.com
+#      - SMTP_PASS=Hbasync2018
+#      - SMTP_EMAIL=estudo.async.hb@gmail.com
+      - SMTP_HOST=email-smtp.us-east-2.amazonaws.com
+      - SMTP_USER=AKIA4TOL2AU6U4MDC3E3
+      - SMTP_PASS=BGnTNSVB0ZXO69LAEYubYjamx05Um+WxtNY2cG6tGGnz
       - SMTP_EMAIL=estudo.async.hb@gmail.com
       - LAMBDA_EXECUTOR=docker-reuse
       - LAMBDA_REMOTE_DOCKER=1

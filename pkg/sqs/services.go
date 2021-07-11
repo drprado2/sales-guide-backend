@@ -81,7 +81,7 @@ func DeleteMsgSvc(ctx context.Context, queueUrl string, receiptId string) error 
 	return err
 }
 
-func CastInterfaceToMsgAttrValue(ipt map[string]interface{}) (map[string]types.MessageAttributeValue, error) {
+func castInterfaceToMsgAttrValue(ipt map[string]interface{}) (map[string]types.MessageAttributeValue, error) {
 	result := make(map[string]types.MessageAttributeValue)
 	if ipt == nil {
 		return result, nil
@@ -115,7 +115,7 @@ func CastInterfaceToMsgAttrValue(ipt map[string]interface{}) (map[string]types.M
 }
 
 func SendMsgSvc(ctx context.Context, queueUrl string, delaySeconds int32, msg string, msgAttributes map[string]interface{}) (string, error) {
-	attrs, err := CastInterfaceToMsgAttrValue(msgAttributes)
+	attrs, err := castInterfaceToMsgAttrValue(msgAttributes)
 	if err != nil {
 		return "", err
 	}
@@ -134,7 +134,7 @@ func SendMsgSvc(ctx context.Context, queueUrl string, delaySeconds int32, msg st
 }
 
 func SendJsonMsgSvc(ctx context.Context, queueUrl string, delaySeconds int32, msg interface{}, msgAttributes map[string]interface{}) (string, error) {
-	attrs, err := CastInterfaceToMsgAttrValue(msgAttributes)
+	attrs, err := castInterfaceToMsgAttrValue(msgAttributes)
 	if err != nil {
 		return "", err
 	}
@@ -157,7 +157,7 @@ func SendJsonMsgSvc(ctx context.Context, queueUrl string, delaySeconds int32, ms
 }
 
 func SendFifoMsgSvc(ctx context.Context, queueUrl string, msg string, msgGroupId string, msgAttributes map[string]interface{}) (string, error) {
-	attrs, err := CastInterfaceToMsgAttrValue(msgAttributes)
+	attrs, err := castInterfaceToMsgAttrValue(msgAttributes)
 	if err != nil {
 		return "", err
 	}
@@ -176,7 +176,7 @@ func SendFifoMsgSvc(ctx context.Context, queueUrl string, msg string, msgGroupId
 }
 
 func SendJsonFifoMsgSvc(ctx context.Context, queueUrl string, msg interface{}, msgGroupId string, msgAttributes map[string]interface{}) (string, error) {
-	attrs, err := CastInterfaceToMsgAttrValue(msgAttributes)
+	attrs, err := castInterfaceToMsgAttrValue(msgAttributes)
 	if err != nil {
 		return "", err
 	}
