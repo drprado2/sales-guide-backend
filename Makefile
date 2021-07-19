@@ -1,6 +1,10 @@
 test:
 	- go test -race ./...
 
+apply-flyway:
+	- flyway -configFiles=./flyway-structure.conf migrate &&\
+ 	 	flyway -configFiles=./flyway-data.conf migrate
+
 test-cover:
 	- go test -race -coverprofile cover.out ./... && go tool cover -html=cover.out -o cover.html && xdg-open ./cover.html
 

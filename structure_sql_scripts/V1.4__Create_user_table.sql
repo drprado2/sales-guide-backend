@@ -1,6 +1,6 @@
 CREATE TABLE app_user
 (
-    id                    uuid    DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id                    uuid     PRIMARY KEY NOT NULL,
     company_id            uuid              NOT NULL,
     name                  VARCHAR(250)      NOT NULL,
     email                 VARCHAR(250)      NOT NULL,
@@ -12,13 +12,7 @@ CREATE TABLE app_user
     record_editing_count  INTEGER DEFAULT 0 NOT NULL,
     record_deletion_count INTEGER DEFAULT 0 NOT NULL,
     last_acess            DATE              NULL,
-    created_at            TIMESTAMPTZ       NOT NULL DEFAULT NOW(),
-    updated_at            TIMESTAMPTZ       NOT NULL DEFAULT NOW(),
+    created_at            TIMESTAMPTZ       NOT NULL,
+    updated_at            TIMESTAMPTZ       NOT NULL,
     FOREIGN KEY (company_id) REFERENCES company (id)
 );
-
-CREATE TRIGGER set_user_updated_at
-    BEFORE UPDATE
-    ON app_user
-    FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();

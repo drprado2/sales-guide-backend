@@ -1,17 +1,11 @@
 CREATE TABLE product_category
 (
-    id          uuid                   DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id          uuid                   PRIMARY KEY,
     company_id  uuid          NOT NULL,
     name        VARCHAR(250)  NOT NULL,
     description VARCHAR(2000) NULL,
     icon        TEXT          NOT NULL,
-    created_at  TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    created_at  TIMESTAMPTZ   NOT NULL,
+    updated_at  TIMESTAMPTZ   NOT NULL,
     FOREIGN KEY (company_id) REFERENCES company (id)
 );
-
-CREATE TRIGGER set_product_category_updated_at
-    BEFORE UPDATE
-    ON product_category
-    FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();

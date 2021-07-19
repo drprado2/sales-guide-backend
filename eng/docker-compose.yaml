@@ -7,10 +7,11 @@ services:
     container_name: postgres-sales-guide
     environment:
       POSTGRES_PASSWORD: "Postgres2019!"
+      POSTGRES_USER: "admin"
     ports:
       - "15432:5432"
     volumes:
-      - /home/renatogroffe/Desenvolvimento/Docker-Compose/PostgreSQL:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - postgres-compose-network
 
@@ -26,61 +27,61 @@ services:
     networks:
       - postgres-compose-network
 
-  sales-guide-rabbitmq:
-    build:
-      context: ./rabbitmq
-      dockerfile: Dockerfile
-    hostname: "rabbitmq"
-    container_name: sales-guide-rabbitmq
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    labels:
-      NAME: "rabbitmq"
-    networks:
-      - sales-guide-network
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-
-  sales-guide-redis:
-    image: "redis:alpine"
-    hostname: "redis"
-    command: sh -c "redis-server --requirepass admin --appendonly yes"
-    container_name: sales-guide-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./redis/storage:/data
-    environment:
-      - REDIS_REPLICATION_MODE=master
-    networks:
-      - sales-guide-network
-
-  sales-guide-redis-commander:
-    container_name: sales-guide-redis-commander
-    hostname: redis-commander
-    image: rediscommander/redis-commander:latest
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=admin
-      - REDIS_DB=mycatalog
-    ports:
-      - "8081:8081"
-    networks:
-      - sales-guide-network
-
-  sales-guide-mongo-server-1:
-    image: mongo:latest
-    container_name: sales-guide-mongo-server-1
-    command: --port 27017
-    ports:
-      - 27017:27017
-    volumes:
-      - mongo-server-1-store:/data/db
-    networks:
-      - sales-guide-network
+#  sales-guide-rabbitmq:
+#    build:
+#      context: ./rabbitmq
+#      dockerfile: Dockerfile
+#    hostname: "rabbitmq"
+#    container_name: sales-guide-rabbitmq
+#    ports:
+#      - "15672:15672"
+#      - "5672:5672"
+#    labels:
+#      NAME: "rabbitmq"
+#    networks:
+#      - sales-guide-network
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=guest
+#      - RABBITMQ_DEFAULT_PASS=guest
+#
+#  sales-guide-redis:
+#    image: "redis:alpine"
+#    hostname: "redis"
+#    command: sh -c "redis-server --requirepass admin --appendonly yes"
+#    container_name: sales-guide-redis
+#    ports:
+#      - "6379:6379"
+#    volumes:
+#      - ./redis/storage:/data
+#    environment:
+#      - REDIS_REPLICATION_MODE=master
+#    networks:
+#      - sales-guide-network
+#
+#  sales-guide-redis-commander:
+#    container_name: sales-guide-redis-commander
+#    hostname: redis-commander
+#    image: rediscommander/redis-commander:latest
+#    environment:
+#      - REDIS_HOST=redis
+#      - REDIS_PORT=6379
+#      - REDIS_PASSWORD=admin
+#      - REDIS_DB=mycatalog
+#    ports:
+#      - "8081:8081"
+#    networks:
+#      - sales-guide-network
+#
+#  sales-guide-mongo-server-1:
+#    image: mongo:latest
+#    container_name: sales-guide-mongo-server-1
+#    command: --port 27017
+#    ports:
+#      - 27017:27017
+#    volumes:
+#      - mongo-server-1-store:/data/db
+#    networks:
+#      - sales-guide-network
 
 networks:
   postgres-compose-network:
@@ -90,5 +91,5 @@ networks:
       driver: default
 
 volumes:
-  mongo-server-1-store:
+  postgres-data:
     driver: local

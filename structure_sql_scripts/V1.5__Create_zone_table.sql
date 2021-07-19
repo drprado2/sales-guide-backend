@@ -1,19 +1,13 @@
 CREATE TABLE zone
 (
-    id                   uuid                   DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id                   uuid                   PRIMARY KEY NOT NULL,
     company_id           uuid NOT NULL,
     name                 VARCHAR(250)  NOT NULL,
-    total_sellers         integer       NOT NULL DEFAULT 0,
-    total_proves_sent      integer       NOT NULL DEFAULT 0,
-    total_treinament_dones integer       NOT NULL DEFAULT 0,
+    total_sellers         integer       NOT NULL,
+    total_proves_sent      integer       NOT NULL,
+    total_treinament_dones integer       NOT NULL,
     description          VARCHAR(2000) NULL,
-    created_at           TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
-    updated_at           TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    created_at           TIMESTAMPTZ   NOT NULL,
+    updated_at           TIMESTAMPTZ   NOT NULL,
     FOREIGN KEY (company_id) REFERENCES company (id)
 );
-
-CREATE TRIGGER set_zone_updated_at
-    BEFORE UPDATE
-    ON zone
-    FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();

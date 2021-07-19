@@ -4,7 +4,6 @@ go 1.15
 
 require (
 	github.com/aws/aws-lambda-go v1.24.0
-	github.com/aws/aws-sdk-go v1.39.4
 	github.com/aws/aws-sdk-go-v2 v1.7.0
 	github.com/aws/aws-sdk-go-v2/config v1.4.1
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.1.2
@@ -24,9 +23,12 @@ require (
 	github.com/jackc/pgx/v4 v4.10.1
 	github.com/jinzhu/copier v0.3.2
 	github.com/lib/pq v1.9.0 // indirect
+	github.com/mazznoer/csscolorparser v0.1.1
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5
 	github.com/openzipkin/zipkin-go v0.2.5
+	github.com/paemuri/brdoc v1.1.2
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.8.0
+	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 )

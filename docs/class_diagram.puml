@@ -3,6 +3,7 @@
 class Company {
   + **id**: //UUID//
   + **name**: //string//
+  + **document**: //string//
   + **logo**: //string//
   + **totalColaborators**: //int//
   + **primaryColor**: //string//
