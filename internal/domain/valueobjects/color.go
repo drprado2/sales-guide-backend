@@ -1,26 +1,24 @@
 package valueobjects
 
+import (
+	utils2 "github.com/drprado2/react-redux-typescript/internal/utils"
+)
+
 type (
 	Color string
-
-	ColorService interface {
-		IsValid(color string) error
-		AsRgb(color string) string
-		AsHex(color string) string
-	}
 )
 
 func NewColor(value string) (*Color, error) {
-	if err := ColorSvc.IsValid(value); err != nil {
+	if err := utils2.ColorSvc.IsValid(value); err != nil {
 		return nil, err
 	}
 	return (*Color)(&value), nil
 }
 
 func (c *Color) Rgb() string {
-	return ColorSvc.AsRgb(string(*c))
+	return utils2.ColorSvc.AsRgb(string(*c))
 }
 
 func (c *Color) Hex() string {
-	return ColorSvc.AsHex(string(*c))
+	return utils2.ColorSvc.AsHex(string(*c))
 }

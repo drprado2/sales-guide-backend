@@ -1,20 +1,21 @@
-package adapters
+package repository
 
 import (
 	"context"
 	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
 	apptracer2 "github.com/drprado2/react-redux-typescript/pkg/apptracer"
+	"github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type (
 	CompanySqlRepository struct {
 		dbPool    *pgxpool.Pool
-		tracerSvc apptracer2.TracerService
+		tracerSvc *apptracer2.TracerService
 	}
 )
 
-func NewCompanySqlRepository(dbPool *pgxpool.Pool, tracerSvc apptracer2.TracerService) *CompanySqlRepository {
+func NewCompanySqlRepository(dbPool *pgxpool.Pool, tracerSvc *apptracer2.TracerService) *CompanySqlRepository {
 	return &CompanySqlRepository{
 		dbPool:    dbPool,
 		tracerSvc: tracerSvc,
@@ -56,4 +57,33 @@ INSERT INTO company (
 		company.UpdatedAt,
 	)
 	return err
+}
+
+func (csr *CompanySqlRepository) GetCompanyByID(ctx context.Context, companyID string) (*entities.Company, error) {
+	span, ctx := csr.tracerSvc.SpanFromContext(ctx)
+	defer span.Finish()
+
+	query := `
+SELECT
+	id,
+	name, 
+	document, 
+	logo, 
+	total_colaborators, 
+	primary_color, 
+	primary_font_color, 
+	secondary_color, 
+	secondary_font_color, 
+	created_at, 
+	updated_at
+FROM company
+WHERE id = $1
+`
+	result := &entities.Company{}
+	if err := csr.dbPool.QueryRow(ctx, query, companyID).
+		Scan(&result.ID, &result.Name, &result.Document, &result.Logo, &result.TotalColaborators, &result.PrimaryColor, &result.PrimaryFontColor, &result.SecondaryColor, &result.SecondaryFontColor, &result.CreatedAt, &result.UpdatedAt); err != nil {
+			logs.Logger(ctx).WithError(err).Error("Error getting player by id")
+		return nil, err
+	}
+	return result, nil
 }

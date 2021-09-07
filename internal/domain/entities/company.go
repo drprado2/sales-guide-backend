@@ -1,8 +1,7 @@
 package entities
 
 import (
-	"context"
-	"errors"
+	"github.com/drprado2/react-redux-typescript/internal/domain"
 	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
 	"time"
 )
@@ -13,10 +12,6 @@ const (
 	DefaultPrimaryFontColor   = "#cce4ff"
 	DefaultSecondaryColor     = "#ffffff"
 	DefaultSecondaryFontColor = "#222"
-)
-
-var (
-	CompanyInvalidToSaveError = errors.New("company is invalid to save, please check the required fields")
 )
 
 type (
@@ -32,10 +27,6 @@ type (
 		SecondaryFontColor *valueobjects.Color
 		CreatedAt          time.Time
 		UpdatedAt          time.Time
-	}
-
-	CompanyRepository interface {
-		Create(ctx context.Context, company *Company) error
 	}
 )
 
@@ -70,7 +61,8 @@ func (c *Company) ValidToSave() error {
 		c.PrimaryFontColor == nil ||
 		c.SecondaryColor == nil ||
 		c.SecondaryFontColor == nil {
-		return CompanyInvalidToSaveError
+		return domain.CompanyInvalidToSaveError
 	}
 	return nil
 }
+

@@ -1,11 +1,18 @@
 package domain
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type (
 	InternalError struct {
 		err error
 	}
+)
+
+var (
+	CompanyInvalidToSaveError = errors.New("empresa inválida, por favor verifique os campos obrigatórios")
 )
 
 func NewInternalError(err error) error {

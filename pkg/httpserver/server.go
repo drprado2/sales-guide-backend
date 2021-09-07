@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/drprado2/react-redux-typescript/configs"
-	"github.com/drprado2/react-redux-typescript/internal/domain"
 	middlewares2 "github.com/drprado2/react-redux-typescript/pkg/httpserver/middlewares"
 	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/felixge/fgprof"
@@ -27,15 +26,13 @@ type Server struct {
 	server         *http.Server
 	tracer         *zipkin.Tracer
 	zipkinEndpoint *zipkinmodel.Endpoint
-	logger         domain.Logger
 	mainCtx        context.Context
 	cancelCtx      context.CancelFunc
 	router         *mux.Router
 }
 
-func NewServer(logger domain.Logger, tracer *zipkin.Tracer, zipkinEndpoint *zipkinmodel.Endpoint) *Server {
+func NewServer(tracer *zipkin.Tracer, zipkinEndpoint *zipkinmodel.Endpoint) *Server {
 	server := new(Server)
-	server.logger = logger
 	server.tracer = tracer
 	server.zipkinEndpoint = zipkinEndpoint
 
@@ -50,7 +47,7 @@ func NewServer(logger domain.Logger, tracer *zipkin.Tracer, zipkinEndpoint *zipk
 }
 
 func (s *Server) WithRoutes(handler func(router *mux.Router)) *Server {
-	s.logger.Infof(s.mainCtx, "registering request handlers")
+	logs2.Logger(s.mainCtx).Info("registering request handlers")
 
 	handler(s.router)
 	return s
@@ -58,7 +55,7 @@ func (s *Server) WithRoutes(handler func(router *mux.Router)) *Server {
 
 func (s *Server) Start() {
 	envs := configs.Get()
-	s.logger.Infof(s.mainCtx, "Starting http server at port %v, with env %v", envs.ServerPort, envs.ServerEnvironment)
+	logs2.Logger(s.mainCtx).Infof("Starting http server at port %v, with env %v", envs.ServerPort, envs.ServerEnvironment)
 
 	http.Handle("/", s.router)
 
@@ -66,10 +63,10 @@ func (s *Server) Start() {
 
 	if envs.ServerEnvironment == configs.DeveloperEnvironment {
 		go func() {
-			s.logger.Infof(s.mainCtx, "starting pgprof server")
+			logs2.Logger(s.mainCtx).Info("starting pgprof server")
 			http.DefaultServeMux.Handle("/debug/fgprof", fgprof.Handler())
 			if err := http.ListenAndServe(":6060", nil); err != nil {
-				s.logger.Errorf(s.mainCtx, err.Error())
+				logs2.Logger(s.mainCtx).WithError(err).Error("error strarting pgprof")
 			}
 		}()
 	}
@@ -84,7 +81,7 @@ func (s *Server) Start() {
 	}
 
 	if err := s.server.ListenAndServe(); err != nil {
-		s.logger.Fatalf(s.mainCtx, "Fail starting http server, %v", err)
+		logs2.Logger(s.mainCtx).WithError(err).Fatal("Fail starting http server")
 		panic(err)
 	}
 }

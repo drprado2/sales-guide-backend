@@ -1,4 +1,4 @@
-package adapters
+package utils
 
 import "github.com/mazznoer/csscolorparser"
 

@@ -5,18 +5,15 @@ import (
 	"flag"
 	"fmt"
 	"github.com/drprado2/react-redux-typescript/configs"
-	"github.com/drprado2/react-redux-typescript/internal/adapters"
-	"github.com/drprado2/react-redux-typescript/internal/domain"
-	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
-	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
-	apptracer2 "github.com/drprado2/react-redux-typescript/pkg/apptracer"
+	"github.com/drprado2/react-redux-typescript/internal/adapters/http/company"
+	"github.com/drprado2/react-redux-typescript/internal/adapters/observability"
+	"github.com/drprado2/react-redux-typescript/internal/adapters/repository"
+	"github.com/drprado2/react-redux-typescript/internal/adapters/utils"
+	"github.com/drprado2/react-redux-typescript/internal/domain/usecases"
+	utils2 "github.com/drprado2/react-redux-typescript/internal/utils"
 	http_server2 "github.com/drprado2/react-redux-typescript/pkg/httpserver"
 	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/opentracing/opentracing-go"
-	zipkintracer "github.com/openzipkin-contrib/zipkin-go-opentracing"
-	"github.com/openzipkin/zipkin-go"
-	zipkinhttp "github.com/openzipkin/zipkin-go/reporter/http"
 	"os"
 	"os/signal"
 	"time"
@@ -47,45 +44,21 @@ func main() {
 	logs2.Logger(ctx).Info("DB connected successfully")
 	defer dbpool.Close()
 
-	endpoint, err := zipkin.NewEndpoint("sales-guide", fmt.Sprintf("0.0.0.0:%v", configs.ServerPort))
+	tracerService, endpoint, err := observability.NewTracer(ctx)
 	if err != nil {
-		logs2.Logger(ctx).Fatalf("unable to create local endpoint: %+v\n", err)
+		logs2.Logger(ctx).Fatalf("error creating tracer service, %v", err)
+		os.Exit(1)
 	}
 
-	httpReporter := zipkinhttp.NewReporter(configs.ZipkinUrl, zipkinhttp.BatchInterval(time.Second*3))
-	defer httpReporter.Close()
+	companyRepository := repository.NewCompanySqlRepository(dbpool, tracerService)
+	cnpjValidator := new(utils.PaemureBrDocCnpjValidator)
+	colorService := new(utils.CssColorParserService)
 
-	tracer, err := zipkin.NewTracer(
-		httpReporter,
-		zipkin.WithLocalEndpoint(endpoint),
-		zipkin.WithTraceID128Bit(true),
-		zipkin.WithNoopTracer(true))
-	if err != nil {
-		logs2.Logger(ctx).Fatalf("unable to create apptracer: %+v\n", err)
-	}
+	usecases.Setup(companyRepository, tracerService)
+	utils2.Setup(colorService, cnpjValidator)
 
-	tracerService := apptracer2.TracerService{
-		Endpoint: endpoint,
-		Tracer:   tracer,
-	}
-
-	opentracing.SetGlobalTracer(zipkintracer.Wrap(tracer))
-
-	companyRepository := adapters.NewCompanySqlRepository(dbpool, tracerService)
-	logger := new(adapters.LogrusLogger)
-	companyHttpAdapter := adapters.NewCompanyHttpAdapter(logger)
-	cnpjValidator := new(adapters.PaemureBrDocCnpjValidator)
-	colorService := new(adapters.CssColorParserService)
-
-	entities.Setup(companyRepository)
-	valueobjects.Setup(colorService, cnpjValidator)
-	domain.Setup(
-		logger,
-		tracerService,
-	)
-
-	server := http_server2.NewServer(logger, tracer, endpoint).
-		WithRoutes(companyHttpAdapter.RegisterRouteHandlers)
+	server := http_server2.NewServer(tracerService.Tracer, endpoint).
+		WithRoutes(company.RegisterRouteHandlers)
 
 	go func() {
 		server.Start()

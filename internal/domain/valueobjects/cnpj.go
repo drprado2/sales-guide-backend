@@ -1,11 +1,11 @@
 package valueobjects
 
+import (
+	utils2 "github.com/drprado2/react-redux-typescript/internal/utils"
+)
+
 type (
 	Cnpj string
-
-	CnpjValidator interface {
-		Validate(document string) error
-	}
 )
 
 func (c *Cnpj) AsString() string {
@@ -13,7 +13,7 @@ func (c *Cnpj) AsString() string {
 }
 
 func NewCnpj(document string) (*Cnpj, error) {
-	if err := CnpjValidatorSvc.Validate(document); err != nil {
+	if err := utils2.CnpjValidatorSvc.Validate(document); err != nil {
 		return nil, err
 	}
 	return (*Cnpj)(&document), nil

@@ -2,9 +2,9 @@ package usecases
 
 import (
 	"context"
-	"github.com/drprado2/react-redux-typescript/internal/domain"
 	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
 	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
+	"github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/google/uuid"
 	"time"
 )
@@ -21,6 +21,7 @@ type (
 	}
 
 	CreateCompanyOutput struct {
+		Id                 string    `json:"id,omitempty"`
 		Name               string    `json:"name,omitempty"`
 		Document           string    `json:"document,omitempty"`
 		Logo               string    `json:"logo,omitempty"`
@@ -35,19 +36,19 @@ type (
 )
 
 func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompanyOutput, error) {
-	span, ctx := domain.TracerSvc.SpanFromContext(ctx)
+	span, ctx := tracer.SpanFromContext(ctx)
 	defer span.Finish()
 
 	cnpj, err := valueobjects.NewCnpj(input.Document)
 	if err != nil {
-		domain.LoggerSvc.Warnf(ctx, "fail creating company with invalid CNPJ, err=%v", err)
+		logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid CNPJ")
 		return nil, err
 	}
 	company := entities.NewCompany(uuid.NewString(), input.Name, cnpj)
 	if input.Logo != nil {
 		logoUri, err := valueobjects.NewUri(*input.Logo)
 		if err != nil {
-			domain.LoggerSvc.Warnf(ctx, "fail creating company with invalid logo URI, err=%v", err)
+			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid logo URI")
 			return nil, err
 		}
 		company.Logo = logoUri
@@ -55,7 +56,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 	if input.PrimaryColor != nil {
 		color, err := valueobjects.NewColor(*input.PrimaryColor)
 		if err != nil {
-			domain.LoggerSvc.Warnf(ctx, "fail creating company with invalid primary color, err=%v", err)
+			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid primary color")
 			return nil, err
 		}
 		company.PrimaryColor = color
@@ -63,7 +64,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 	if input.PrimaryFontColor != nil {
 		color, err := valueobjects.NewColor(*input.PrimaryFontColor)
 		if err != nil {
-			domain.LoggerSvc.Warnf(ctx, "fail creating company with invalid primary font color, err=%v", err)
+			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid primary font color")
 			return nil, err
 		}
 		company.PrimaryFontColor = color
@@ -71,7 +72,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 	if input.SecondaryColor != nil {
 		color, err := valueobjects.NewColor(*input.SecondaryColor)
 		if err != nil {
-			domain.LoggerSvc.Warnf(ctx, "fail creating company with invalid secondary color, err=%v", err)
+			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid secondary color")
 			return nil, err
 		}
 		company.SecondaryColor = color
@@ -79,19 +80,20 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 	if input.SecondaryFontColor != nil {
 		color, err := valueobjects.NewColor(*input.SecondaryFontColor)
 		if err != nil {
-			domain.LoggerSvc.Warnf(ctx, "fail creating company with invalid secondary font color, err=%v", err)
+			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid secondary font color")
 			return nil, err
 		}
 		company.SecondaryFontColor = color
 	}
 	company.TotalColaborators = 0
 
-	if err := entities.CompanyRepositorySvc.Create(ctx, company); err != nil {
-		domain.LoggerSvc.Errorf(ctx, "fail creating company with error in repository err=%v", err)
+	if err := companyRepository.Create(ctx, company); err != nil {
+		logs.Logger(ctx).WithError(err).Warn("fail creating company with error in repository")
 		return nil, err
 	}
 
 	return &CreateCompanyOutput{
+		Id:                 company.ID,
 		Name:               company.Name,
 		Document:           company.Document.AsString(),
 		Logo:               company.Logo.AsString(),
