@@ -100,3 +100,53 @@ list-redis-groups:
 	- aws elasticache describe-replication-groups \
       --endpoint-url http://localhost:4566 \
       --region sa-east-1
+
+create-kong-db:
+	- docker pull kong/kong-gateway:2.5.0.0-alpine &&\
+		docker tag kong/kong-gateway:2.5.0.0-alpine kong-ee &&\
+		docker network create kong-ee-net &&\
+		docker run -d --name kong-ee-database \
+          --network=kong-ee-net \
+          -p 25432:5432 \
+          -e "POSTGRES_USER=kong" \
+          -e "POSTGRES_DB=kong" \
+          -e "POSTGRES_PASSWORD=kong" \
+          postgres:9.6
+
+migrate-kong-db:
+	-  docker run --rm --network=kong-ee-net \
+          -e "KONG_DATABASE=postgres" \
+          -e "KONG_PG_HOST=kong-ee-database" \
+          -e "KONG_PG_PORT=5432" \
+          -e "KONG_PG_PASSWORD=kong" \
+          -e "KONG_PASSWORD=Admin123!" \
+          kong-ee kong migrations bootstrap
+
+start-kong:
+	- docker run -d --name kong-ee --network=kong-ee-net \
+	  -e "KONG_DATABASE=postgres" \
+	  -e "KONG_PG_HOST=kong-ee-database" \
+	  -e "KONG_PG_PASSWORD=kong" \
+	  -e "KONG_PG_PORT=5432" \
+	  -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" \
+	  -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" \
+	  -e "KONG_PROXY_ERROR_LOG=/dev/stderr" \
+	  -e "KONG_ADMIN_ERROR_LOG=/dev/stderr" \
+	  -e "KONG_ADMIN_LISTEN=0.0.0.0:8001" \
+	  -e "KONG_ADMIN_GUI_URL=http://localhost:8002" \
+		-p 8000:8000 \
+		-p 8443:8443 \
+		-p 8001:8001 \
+		-p 8444:8444 \
+		-p 8002:8002 \
+		-p 8445:8445 \
+		-p 8003:8003 \
+		-p 8004:8004 \
+		kong-ee
+
+clear-kong:
+	- docker container rm -f kong-ee &&\
+ 		docker container rm -f kong-ee-database &&\
+ 		docker container rm -f kong &&\
+ 		docker network rm kong-ee-net
+

@@ -22,5 +22,12 @@
       <jdbc-url>jdbc:postgresql://4.tcp.ngrok.io:13177/mydb-ps</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="Kong database" uuid="fb5b3d70-cd75-4d65-8e89-f3c2ec94ffaf">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:25432/postgres</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

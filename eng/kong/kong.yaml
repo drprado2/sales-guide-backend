@@ -1,0 +1,241 @@
+_format_version: "1.1"
+consumers:
+- custom_id: consumer
+  keyauth_credentials:
+  - key: test123Admin
+  username: consumer
+- username: kong_admin
+- custom_id: sales-guide-web
+  jwt_secrets:
+  - algorithm: RS256
+    key: https://drprado2.us.auth0.com/
+    rsa_public_key: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyi6hX0Ju9CpPftoKrV4r
+      y96Ju6a+WjhTD5cmtRMfj4wgP/9SpGaMFlM/f7ip6t5LdkoH5d4V/R+trthHZJgE
+      tv66qPGAHxnHS0i59QYcXQ4obMqtr78d81ejPtJITKr/iQLL35MAZ9Rqn4rj/9d4
+      WNYWMtHab3ILzJm0Qb03wnp/4QNQ2NEZLubWAcytmPvf/Ga7IkR3wIEdWAN122+E
+      61uXR5XbaU9S9PLeF8KL4kVBF8TLmCYL3X4pIdlA/E+ncG1ySs7fKgH5ZsdC0zbL
+      xeNG6vBII3KA5Xxb6x+v2AvkynZaiSJOyS6raO/DN0xaXDXtW0aC1CBuVoBxoGei
+      aQIDAQAB
+      -----END PUBLIC KEY-----
+    secret: Ufk6ZNFpFUMJYtOApFNWgGAubGx9tAHV
+  username: sales-guide-web
+plugins:
+- config:
+    strip_claims: "false"
+    token_required: "true"
+  enabled: true
+  name: kong-jwt2header
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+- config:
+    cache_control: false
+    cache_ttl: 1
+    content_type:
+    - application/json; charset=utf-8
+    memory:
+      dictionary_name: kong_db_cache
+    request_method:
+    - GET
+    - HEAD
+    response_code:
+    - 200
+    - 301
+    - 404
+    storage_ttl: null
+    strategy: memory
+    vary_headers: null
+    vary_query_params: null
+  enabled: true
+  name: proxy-cache
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+- config:
+    day: null
+    fault_tolerant: true
+    header_name: null
+    hide_client_headers: false
+    hour: null
+    limit_by: consumer
+    minute: 500
+    month: null
+    path: null
+    policy: local
+    redis_database: 0
+    redis_host: null
+    redis_password: null
+    redis_port: 6379
+    redis_timeout: 2000
+    second: null
+    year: null
+  enabled: true
+  name: rate-limiting
+  protocols:
+  - grpc
+  - grpcs
+  - http
+  - https
+services:
+- connect_timeout: 60000
+  host: upstream
+  name: example_service
+  port: 80
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - https_redirect_status_code: 426
+    name: mocking
+    path_handling: v0
+    paths:
+    - /mock
+    plugins:
+    - config:
+        anonymous: null
+        hide_credentials: false
+        key_in_body: false
+        key_in_header: true
+        key_in_query: true
+        key_names:
+        - apikey
+        run_on_preflight: true
+      enabled: false
+      name: key-auth
+      protocols:
+      - grpc
+      - grpcs
+      - http
+      - https
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: localhost
+  name: sales-guide-list-sellers
+  path: /api/v1/sellers
+  plugins:
+  - config:
+      anonymous: null
+      claims_to_verify: null
+      cookie_names: []
+      header_names:
+      - authorization
+      key_claim_name: iss
+      maximum_expiration: 0
+      run_on_preflight: true
+      secret_is_base64: false
+      uri_param_names:
+      - jwt
+    enabled: true
+    name: jwt
+    protocols:
+    - grpc
+    - grpcs
+    - http
+    - https
+  port: 5050
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+  - name: list-sellers
+    methods:
+    - GET
+    https_redirect_status_code: 426
+    path_handling: v0
+    paths:
+    - /sales-guide/v1/sellers
+    preserve_host: false
+    protocols:
+    - http
+    - https
+    regex_priority: 0
+    request_buffering: true
+    response_buffering: true
+    strip_path: true
+  write_timeout: 60000
+upstreams:
+- algorithm: round-robin
+  hash_fallback: none
+  hash_on: none
+  hash_on_cookie_path: /
+  healthchecks:
+    active:
+      concurrency: 10
+      healthy:
+        http_statuses:
+        - 200
+        - 302
+        interval: 0
+        successes: 0
+      http_path: /
+      https_verify_certificate: true
+      timeout: 1
+      type: http
+      unhealthy:
+        http_failures: 0
+        http_statuses:
+        - 429
+        - 404
+        - 500
+        - 501
+        - 502
+        - 503
+        - 504
+        - 505
+        interval: 0
+        tcp_failures: 0
+        timeouts: 0
+    passive:
+      healthy:
+        http_statuses:
+        - 200
+        - 201
+        - 202
+        - 203
+        - 204
+        - 205
+        - 206
+        - 207
+        - 208
+        - 226
+        - 300
+        - 301
+        - 302
+        - 303
+        - 304
+        - 305
+        - 306
+        - 307
+        - 308
+        successes: 0
+      type: http
+      unhealthy:
+        http_failures: 0
+        http_statuses:
+        - 429
+        - 500
+        - 503
+        tcp_failures: 0
+        timeouts: 0
+    threshold: 0
+  name: upstream
+  slots: 10000
+  targets:
+  - target: httpbin.org:80
+    weight: 100
+  - target: mockbin.org:80
+    weight: 100
