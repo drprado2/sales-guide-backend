@@ -21,6 +21,8 @@ var (
 //Environment this object keep the all variables environment
 type Environment struct {
 	ServerPort            int    `cfg:"SERVER_PORT" cfgDefault:"5050" cfgRequired:"true"`
+	ServerHost            string `cfg:"SERVER_HOST" cfgDefault:"localhost" cfgRequired:"true"`
+	ServiceName           string `cfg:"SERVICE_NAME" cfgDefault:"Sales Guide" cfgRequired:"true"`
 	ServerEndpointTimeout int    `cfg:"SERVER_ENDPOINT_TIMEOUT" cfgDefault:"900" cfgRequired:"true"`
 	ServerEnvironment     string `cfg:"SERVER_ENVIRONMENT" cfgDefault:"dev" cfgRequired:"true"`
 	SystemVersion         string `cfg:"SYSTEM_VERSION" cfgDefault:"UNKNOWN" cfgRequired:"true"`
@@ -29,8 +31,8 @@ type Environment struct {
 	DbPass                string `cfg:"DB_PASS" cfgDefault:"Postgres2019!" cfgRequired:"true"`
 	DbName                string `cfg:"DB_NAME" cfgDefault:"sales-guide" cfgRequired:"true"`
 	DbHost                string `cfg:"DB_HOST" cfgDefault:"localhost" cfgRequired:"true"`
-	DbPort                int    `cfg:"DB_PORT" cfgDefault:"15432" cfgRequired:"true"`
-	ZipkinUrl             string `cfg:"ZIPKIN_URL" cfgDefault:"http://localhost:9411/api/v2/spans" cfgRequired:"true"`
+	DbPort                int    `cfg:"DB_PORT" cfgDefault:"5432" cfgRequired:"true"`
+	ZipkinReportUrl       string `cfg:"ZIPKIN_URL" cfgDefault:"http://localhost:9411/api/v2/spans" cfgRequired:"true"`
 	AwsRegion             string `cfg:"AWS_REGION" cfgDefault:"sa-east-1" cfgRequired:"true"`
 	AwsAccessKey          string `cfg:"AWS_ACCESS_KEY_ID" cfgDefault:"sa-east-1" cfgRequired:"true"`
 	AwsSecretAccessKey    string `cfg:"AWS_SECRET_ACCESS_KEY" cfgDefault:"sa-east-1" cfgRequired:"true"`

@@ -8,8 +8,8 @@ import (
 	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/felixge/fgprof"
 	"github.com/gorilla/mux"
-	zipkin "github.com/openzipkin/zipkin-go"
-	zipkinmodel "github.com/openzipkin/zipkin-go/model"
+	"github.com/openzipkin/zipkin-go"
+	zipkinhttp "github.com/openzipkin/zipkin-go/middleware/http"
 	"net/http"
 	_ "net/http/pprof"
 	"time"
@@ -23,18 +23,17 @@ const (
 )
 
 type Server struct {
-	server         *http.Server
-	tracer         *zipkin.Tracer
-	zipkinEndpoint *zipkinmodel.Endpoint
-	mainCtx        context.Context
-	cancelCtx      context.CancelFunc
-	router         *mux.Router
+	server           *http.Server
+	zipkinMiddleware func(http.Handler) http.Handler
+	mainCtx          context.Context
+	cancelCtx        context.CancelFunc
+	router           *mux.Router
 }
 
-func NewServer(tracer *zipkin.Tracer, zipkinEndpoint *zipkinmodel.Endpoint) *Server {
+func NewServer(tracer *zipkin.Tracer) *Server {
 	server := new(Server)
-	server.tracer = tracer
-	server.zipkinEndpoint = zipkinEndpoint
+
+	server.zipkinMiddleware = zipkinhttp.NewServerMiddleware(tracer, zipkinhttp.TagResponseSize(true))
 
 	r := mux.NewRouter().StrictSlash(true)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -92,9 +91,10 @@ func (s *Server) Shutdown(ctx context.Context) {
 }
 
 func (s *Server) registerMiddlewares(router *mux.Router) {
-	router.Use(middlewares2.PanicMiddleware)
 	router.Use(mux.CORSMethodMiddleware(router))
+	router.Use(middlewares2.PanicMiddleware)
 	router.Use(middlewares2.CidMiddleware)
-	router.Use(middlewares2.SpanMiddleware(s.tracer, s.zipkinEndpoint))
+	router.Use(s.zipkinMiddleware)
+	router.Use(middlewares2.SpanMiddleware)
 	router.Use(middlewares2.RequestLogMiddleware)
 }
