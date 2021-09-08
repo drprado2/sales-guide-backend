@@ -101,6 +101,9 @@ list-redis-groups:
       --endpoint-url http://localhost:4566 \
       --region sa-east-1
 
+build-custom-kong-img:
+	- cd eng/kong && docker image build -t custom-kong-ee .
+
 create-kong-db:
 	- docker pull kong/kong-gateway:2.5.0.0-alpine &&\
 		docker tag kong/kong-gateway:2.5.0.0-alpine kong-ee &&\
@@ -128,6 +131,7 @@ start-kong:
 	  -e "KONG_PG_HOST=kong-ee-database" \
 	  -e "KONG_PG_PASSWORD=kong" \
 	  -e "KONG_PG_PORT=5432" \
+	  -e "KONG_PLUGINS=bundled,kong-jwt2header" \
 	  -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" \
 	  -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" \
 	  -e "KONG_PROXY_ERROR_LOG=/dev/stderr" \
@@ -142,7 +146,7 @@ start-kong:
 		-p 8445:8445 \
 		-p 8003:8003 \
 		-p 8004:8004 \
-		kong-ee
+		custom-kong-ee
 
 clear-kong:
 	- docker container rm -f kong-ee &&\
@@ -150,3 +154,5 @@ clear-kong:
  		docker container rm -f kong &&\
  		docker network rm kong-ee-net
 
+sync-kong:
+	- cd eng/kong && deck sync

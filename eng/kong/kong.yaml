@@ -4,7 +4,6 @@ consumers:
   keyauth_credentials:
   - key: test123Admin
   username: consumer
-- username: kong_admin
 - custom_id: sales-guide-web
   jwt_secrets:
   - algorithm: RS256
