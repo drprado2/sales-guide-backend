@@ -1,0 +1,111 @@
+{
+	"info": {
+		"_postman_id": "4e9cf053-ff64-4fff-9433-9eef63ad49dc",
+		"name": "Sales Guide",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Company V1",
+			"item": [
+				{
+					"name": "Create Company",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function gera_random(n) {",
+									"    var ranNum = Math.round(Math.random() * n);",
+									"    return ranNum;",
+									"}",
+									"",
+									"function mod(dividendo, divisor) {",
+									"    return Math.round(dividendo - (Math.floor(dividendo / divisor) * divisor));",
+									"}",
+									"",
+									"function cpf() {",
+									"    var n = 9;",
+									"    var n1 = gera_random(n);",
+									"    var n2 = gera_random(n);",
+									"    var n3 = gera_random(n);",
+									"    var n4 = gera_random(n);",
+									"    var n5 = gera_random(n);",
+									"    var n6 = gera_random(n);",
+									"    var n7 = gera_random(n);",
+									"    var n8 = gera_random(n);",
+									"    var n9 = gera_random(n);",
+									"    var d1 = n9 * 2 + n8 * 3 + n7 * 4 + n6 * 5 + n5 * 6 + n4 * 7 + n3 * 8 + n2 * 9 + n1 * 10;",
+									"    d1 = 11 - (mod(d1, 11));",
+									"    if (d1 >= 10) d1 = 0;",
+									"    var d2 = d1 * 2 + n9 * 3 + n8 * 4 + n7 * 5 + n6 * 6 + n5 * 7 + n4 * 8 + n3 * 9 + n2 * 10 + n1 * 11;",
+									"    d2 = 11 - (mod(d2, 11));",
+									"    if (d2 >= 10) d2 = 0;",
+									"    var cpf = '' + n1 + n2 + n3 + n4 + n5 + n6 + n7 + n8 + n9 + d1 + d2;",
+									"    pm.globals.set(\"cpfGerado\", cpf);",
+									"}",
+									"",
+									"function cnpj() {",
+									"    var n = 9;",
+									"    var n1 = gera_random(n);",
+									"    var n2 = gera_random(n);",
+									"    var n3 = gera_random(n);",
+									"    var n4 = gera_random(n);",
+									"    var n5 = gera_random(n);",
+									"    var n6 = gera_random(n);",
+									"    var n7 = gera_random(n);",
+									"    var n8 = gera_random(n);",
+									"    var n9 = 0; //gera_random(n); ",
+									"  \tvar n10 = 0;//gera_random(n); ",
+									"  \tvar n11 = 0;//gera_random(n); ",
+									"  \tvar n12 = 1;//gera_random(n); ",
+									"  \tvar d1 = n12*2+n11*3+n10*4+n9*5+n8*6+n7*7+n6*8+n5*9+n4*2+n3*3+n2*4+n1*5; ",
+									"  \td1 = 11 - ( mod(d1,11) ); if (d1>=10) d1 = 0; ",
+									"  \tvar d2 = d1*2+n12*3+n11*4+n10*5+n9*6+n8*7+n7*8+n6*9+n5*2+n4*3+n3*4+n2*5+n1*6; ",
+									"  \td2 = 11 - ( mod(d2,11) ); if (d2>=10) d2 = 0; ",
+									"  \tvar cnpj = ''+n1+n2+n3+n4+n5+n6+n7+n8+n9+n10+n11+n12+d1+d2; ",
+									"    pm.collectionVariables.set(\"cnpj\", cnpj); ",
+									"}",
+									"",
+									"cnpj()"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{$randomCompanyName}}\",\n    \"document\": \"{{cnpj}}\",\n    \"logo\": \"{{$randomImageUrl}}\",\n    \"primaryColor\": \"\",\n    \"primaryFontColor\": \"\",\n    \"secondaryColor\": \"\",\n    \"secondaryFontColor\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{sales_guide_host}}/api/v1/companies",
+							"host": [
+								"{{sales_guide_host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"companies"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "cnpj",
+			"value": ""
+		}
+	]
+}
