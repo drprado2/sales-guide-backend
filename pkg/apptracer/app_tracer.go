@@ -2,8 +2,8 @@ package apptracer
 
 import (
 	"context"
-	"github.com/openzipkin/zipkin-go"
-	zipkinmodel "github.com/openzipkin/zipkin-go/model"
+	zipkin "github.com/openzipkin/zipkin-go"
+	zipkinhttp "github.com/openzipkin/zipkin-go/middleware/http"
 	"runtime"
 	"strings"
 )
@@ -13,8 +13,8 @@ type TracerServiceInterface interface {
 }
 
 type TracerService struct {
-	Endpoint *zipkinmodel.Endpoint
-	Tracer   *zipkin.Tracer
+	Tracer *zipkin.Tracer
+	Client *zipkinhttp.Client
 }
 
 func (t *TracerService) SpanFromContext(ctx context.Context) (zipkin.Span, context.Context) {
@@ -24,8 +24,7 @@ func (t *TracerService) SpanFromContext(ctx context.Context) (zipkin.Span, conte
 	lastSlash := strings.LastIndex(f.Name(), "/")
 	spanName := f.Name()[lastSlash+1:]
 
-	span, spanCtx := t.Tracer.StartSpanFromContext(ctx, spanName, zipkin.RemoteEndpoint(t.Endpoint))
-	span.Tag("cid", ctx.Value("cid").(string))
+	span, spanCtx := t.Tracer.StartSpanFromContext(ctx, spanName)
 
 	return span, spanCtx
 }

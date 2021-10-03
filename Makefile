@@ -170,3 +170,6 @@ clear-kong:
 
 sync-kong:
 	- cd eng/kong && deck sync
+
+run-local-dependencies:
+	- cd eng && docker-compose up -d

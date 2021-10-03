@@ -6,21 +6,17 @@ import (
 	"github.com/drprado2/react-redux-typescript/internal/models"
 	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"github.com/openzipkin/zipkin-go"
-	"github.com/openzipkin/zipkin-go/model"
-	zipkinmodel "github.com/openzipkin/zipkin-go/model"
-	"github.com/openzipkin/zipkin-go/propagation/b3"
 	"github.com/sirupsen/logrus"
 	"net/http"
-	"strconv"
+	"runtime/debug"
 )
 
 func PanicMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				logs2.Logger(r.Context()).Fatalf("Panic occurs in path %v, error: %v", r.RequestURI, err)
+				logs2.Logger(r.Context()).Errorf("Panic occurs in path %v, error: %v, stacktrace: %s", r.RequestURI, err, string(debug.Stack()))
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 		}()
@@ -59,32 +55,13 @@ func CidMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func SpanMiddleware(tracer *zipkin.Tracer, zipkinEndpoint *zipkinmodel.Endpoint) mux.MiddlewareFunc {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sc := tracer.Extract(b3.ExtractHTTP(r))
+func SpanMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		span := zipkin.SpanFromContext(r.Context())
+		span.SetName(fmt.Sprintf("%s::%s", r.Method, r.RequestURI))
+		span.Tag("cid", r.Context().Value("cid").(string))
+		defer span.Finish()
 
-			sp := tracer.StartSpan(
-				r.RequestURI,
-				zipkin.Kind(model.Server),
-				zipkin.Parent(sc),
-				zipkin.RemoteEndpoint(zipkinEndpoint),
-			)
-
-			sp.Tag("cid", r.Context().Value("cid").(string))
-
-			ctx := zipkin.NewContext(r.Context(), sp)
-
-			zipkin.TagHTTPMethod.Set(sp, r.Method)
-			zipkin.TagHTTPPath.Set(sp, r.URL.Path)
-			if r.ContentLength > 0 {
-				zipkin.TagHTTPRequestSize.Set(sp, strconv.FormatInt(r.ContentLength, 10))
-			}
-
-			defer sp.Finish()
-
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-
-	}
+		next.ServeHTTP(w, r.WithContext(zipkin.NewContext(r.Context(), span)))
+	})
 }
