@@ -5,6 +5,11 @@ apply-flyway:
 	- flyway -configFiles=./flyway-structure.conf migrate &&\
  	 	flyway -configFiles=./flyway-data.conf migrate
 
+export-aws-env-vars:
+	- export AWS_ACCESS_KEY_ID=AKIA4TOL2AU6WVIAJABA &&\
+      export AWS_SECRET_ACCESS_KEY=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 &&\
+      export AWS_DEFAULT_REGION=us-east-2
+
 test-cover:
 	- go test -race -coverprofile cover.out ./... && go tool cover -html=cover.out -o cover.html && xdg-open ./cover.html
 
@@ -28,6 +33,15 @@ local-tf-plan:
 
 local-tf-apply:
 	- cd terraform/local && terraform apply -lock=false -auto-approve
+
+init-terraform-aws:
+	- cd terraform/mariaaug222 && terraform init
+
+aws-tf-plan:
+	- cd terraform/mariaaug222 && terraform plan -lock=false
+
+aws-tf-apply:
+	- cd terraform/mariaaug222 && terraform apply -lock=false -auto-approve
 
 aws-list-s3:
 	- aws --endpoint-url http://localhost:4566 s3 ls --region sa-east-1

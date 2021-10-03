@@ -106,3 +106,4 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		UpdatedAt:          company.UpdatedAt,
 	}, nil
 }
+

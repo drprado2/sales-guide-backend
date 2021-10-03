@@ -55,8 +55,6 @@ func (s *Server) WithRoutes(handler func(router *mux.Router)) *Server {
 
 func (s *Server) Start() {
 	envs := configs.Get()
-	logs2.Logger(s.mainCtx).Infof("Starting http server at port %v, with env %v", envs.ServerPort, envs.ServerEnvironment)
-
 	http.Handle("/", s.router)
 
 	s.registerMiddlewares(s.router)
@@ -80,6 +78,7 @@ func (s *Server) Start() {
 		ReadTimeout:  time.Duration(envs.ServerEndpointTimeout) * time.Second,
 	}
 
+	logs2.Logger(s.mainCtx).Infof("http server running at port %v, with env %v", envs.ServerPort, envs.ServerEnvironment)
 	if err := s.server.ListenAndServe(); err != nil {
 		logs2.Logger(s.mainCtx).WithError(err).Fatal("Fail starting http server")
 		panic(err)

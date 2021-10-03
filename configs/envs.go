@@ -32,8 +32,8 @@ type Environment struct {
 	DbPort                int    `cfg:"DB_PORT" cfgDefault:"15432" cfgRequired:"true"`
 	ZipkinUrl             string `cfg:"ZIPKIN_URL" cfgDefault:"http://localhost:9411/api/v2/spans" cfgRequired:"true"`
 	AwsRegion             string `cfg:"AWS_REGION" cfgDefault:"sa-east-1" cfgRequired:"true"`
-	AwsAccessKey          string `cfg:"AWS_ACCESS_KEY_ID" cfgDefault:"sa-east-1" cfgRequired:"true"`
-	AwsSecretAccessKey    string `cfg:"AWS_SECRET_ACCESS_KEY" cfgDefault:"sa-east-1" cfgRequired:"true"`
+	AwsAccessKey          string `cfg:"AWS_ACCESS_KEY_ID" cfgDefault:"AKIA4TOL2AU6VBTLRVV7" cfgRequired:"true"`
+	AwsSecretAccessKey    string `cfg:"AWS_SECRET_ACCESS_KEY" cfgDefault:"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" cfgRequired:"true"`
 	//AwsEndpoint        string `cfg:"AWS_ENDPOINT" cfgDefault:"http://localhost:4566" cfgRequired:"true"`
 	AwsEndpoint      string `cfg:"AWS_ENDPOINT" cfgDefault:"http://d6be671397b8.ngrok.io:80" cfgRequired:"true"`
 	RedisHost        string `cfg:"REDIS_HOST" cfgDefault:"localhost" cfgRequired:"true"`
