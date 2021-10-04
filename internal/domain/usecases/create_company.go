@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"context"
+	"errors"
+	"github.com/drprado2/react-redux-typescript/internal/domain"
 	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
 	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
 	"github.com/drprado2/react-redux-typescript/pkg/logs"
@@ -11,8 +13,8 @@ import (
 
 type (
 	CreateCompanyInput struct {
-		Name               string  `json:"name,omitempty"`
-		Document           string  `json:"document,omitempty"`
+		Name               string  `json:"name,omitempty" validate:"required,min=1" name:"nome"`
+		Document           string  `json:"document,omitempty" validate:"required,min=14,max=14" name:"documento"`
 		Logo               *string `json:"logo,omitempty"`
 		PrimaryColor       *string `json:"primaryColor,omitempty"`
 		PrimaryFontColor   *string `json:"primaryFontColor,omitempty"`
@@ -39,17 +41,23 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 	span, ctx := tracer.SpanFromContext(ctx)
 	defer span.Finish()
 
+	if err := payloadValidator.Struct(input); err != nil {
+		return nil, domain.PayloadErrorFromValidator(err, validatorTranslates)
+	}
+
+	errGroup := &domain.ErrorGroup{}
+
 	cnpj, err := valueobjects.NewCnpj(input.Document)
 	if err != nil {
 		logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid CNPJ")
-		return nil, err
+		errGroup.Append(domain.NewConstraintError(err))
 	}
 	company := entities.NewCompany(uuid.NewString(), input.Name, cnpj)
 	if input.Logo != nil {
 		logoUri, err := valueobjects.NewUri(*input.Logo)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid logo URI")
-			return nil, err
+			errGroup.Append(domain.NewConstraintError(errors.New("logo marca inválida")))
 		}
 		company.Logo = logoUri
 	}
@@ -57,7 +65,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		color, err := valueobjects.NewColor(*input.PrimaryColor)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid primary color")
-			return nil, err
+			errGroup.Append(domain.NewConstraintError(errors.New("cor primária inválida")))
 		}
 		company.PrimaryColor = color
 	}
@@ -65,7 +73,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		color, err := valueobjects.NewColor(*input.PrimaryFontColor)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid primary font color")
-			return nil, err
+			errGroup.Append(domain.NewConstraintError(errors.New("cor de fonte primária inválida")))
 		}
 		company.PrimaryFontColor = color
 	}
@@ -73,7 +81,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		color, err := valueobjects.NewColor(*input.SecondaryColor)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid secondary color")
-			return nil, err
+			errGroup.Append(domain.NewConstraintError(errors.New("cor secundária inválida")))
 		}
 		company.SecondaryColor = color
 	}
@@ -81,14 +89,19 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		color, err := valueobjects.NewColor(*input.SecondaryFontColor)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid secondary font color")
-			return nil, err
+			errGroup.Append(domain.NewConstraintError(errors.New("cor de fonte secundária inválida")))
 		}
 		company.SecondaryFontColor = color
 	}
+
+	if errGroup.HasError() {
+		return nil, errGroup.AsError()
+	}
+
 	company.TotalColaborators = 0
 
 	if err := companyRepository.Create(ctx, company); err != nil {
-		logs.Logger(ctx).WithError(err).Warn("fail creating company with error in repository")
+		logs.Logger(ctx).WithError(err).Error("fail creating company with error in repository")
 		return nil, err
 	}
 
@@ -106,4 +119,3 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		UpdatedAt:          company.UpdatedAt,
 	}, nil
 }
-

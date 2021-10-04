@@ -13,6 +13,10 @@ import (
 	apptracer2 "github.com/drprado2/react-redux-typescript/pkg/apptracer"
 	http_server2 "github.com/drprado2/react-redux-typescript/pkg/httpserver"
 	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/go-playground/locales/pt_BR"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
+	pt_translations "github.com/go-playground/validator/v10/translations/pt_BR"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/openzipkin/zipkin-go"
 	zipkinhttp "github.com/openzipkin/zipkin-go/middleware/http"
@@ -20,6 +24,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"reflect"
+	"strings"
 	"time"
 )
 
@@ -73,8 +79,9 @@ func main() {
 	companyRepository := repository.NewCompanySqlRepository(dbpool, tracerService)
 	cnpjValidator := new(utils.PaemureBrDocCnpjValidator)
 	colorService := new(utils.CssColorParserService)
+	valid, trans := createValidatorService()
 
-	usecases.Setup(companyRepository, tracerService)
+	usecases.Setup(companyRepository, tracerService, valid, trans)
 	utils2.Setup(colorService, cnpjValidator)
 
 	server := http_server2.NewServer(tracer).
@@ -94,4 +101,23 @@ func main() {
 	server.Shutdown(ctx)
 	logs2.Logger(ctx).Info("shutting down")
 	os.Exit(0)
+}
+
+func createValidatorService() (*validator.Validate, ut.Translator) {
+	ptbr := pt_BR.New()
+	uni := ut.New(ptbr, ptbr)
+	trans, _ := uni.GetTranslator("pt_BR")
+	v := validator.New()
+	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		name := strings.SplitN(fld.Tag.Get("name"), ",", 2)[0]
+		if name == "-" {
+			return ""
+		}
+		return name
+	})
+
+	if err := pt_translations.RegisterDefaultTranslations(v, trans); err != nil {
+		panic(err)
+	}
+	return v, trans
 }

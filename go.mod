@@ -16,6 +16,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.6.0
 	github.com/aws/smithy-go v1.5.0
 	github.com/felixge/fgprof v0.9.1
+	github.com/go-playground/locales v0.14.0
+	github.com/go-playground/universal-translator v0.18.0
+	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-redis/redis/v8 v8.11.0
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
@@ -24,8 +27,6 @@ require (
 	github.com/jinzhu/copier v0.3.2
 	github.com/lib/pq v1.9.0 // indirect
 	github.com/mazznoer/csscolorparser v0.1.1
-	github.com/opentracing/opentracing-go v1.2.0
-	github.com/openzipkin-contrib/zipkin-go-opentracing v0.4.5
 	github.com/openzipkin/zipkin-go v0.2.5
 	github.com/paemuri/brdoc v1.1.2
 	github.com/pkg/errors v0.9.1 // indirect
