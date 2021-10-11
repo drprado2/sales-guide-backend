@@ -27,6 +27,7 @@ type (
 		SecondaryFontColor *valueobjects.Color
 		CreatedAt          time.Time
 		UpdatedAt          time.Time
+		RowVersion         uint32
 	}
 )
 
@@ -65,4 +66,3 @@ func (c *Company) ValidToSave() error {
 	}
 	return nil
 }
-

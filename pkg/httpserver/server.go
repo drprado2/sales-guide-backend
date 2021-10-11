@@ -93,6 +93,7 @@ func (s *Server) registerMiddlewares(router *mux.Router) {
 	router.Use(mux.CORSMethodMiddleware(router))
 	router.Use(middlewares2.PanicMiddleware)
 	router.Use(middlewares2.CidMiddleware)
+	router.Use(middlewares2.LocationMiddleware)
 	router.Use(s.zipkinMiddleware)
 	router.Use(middlewares2.SpanMiddleware)
 	router.Use(middlewares2.RequestLogMiddleware)

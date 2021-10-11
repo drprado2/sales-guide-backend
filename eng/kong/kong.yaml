@@ -170,14 +170,14 @@ services:
     response_buffering: true
     strip_path: true
   write_timeout: 60000
-- connect_timeout: 6000
+- connect_timeout: 600000
   host: host.docker.internal
   name: sales-guide-create-company
   path: /api/v1/companies
   port: 5050
   protocol: http
-  read_timeout: 4000
-  write_timeout: 4000
+  read_timeout: 400000
+  write_timeout: 400000
   retries: 2
   routes:
     - name: create-company
@@ -187,6 +187,48 @@ services:
       path_handling: v0
       paths:
         - /sales-guide/api/v1/companies
+      preserve_host: true
+      protocols:
+        - http
+        - https
+      regex_priority: 0
+      request_buffering: true
+      response_buffering: true
+      plugins:
+        - config:
+            anonymous: null
+            hide_credentials: false
+            key_in_body: false
+            key_in_header: true
+            key_in_query: false
+            key_names:
+              - apikey
+            run_on_preflight: true
+          enabled: true
+          name: key-auth
+          protocols:
+            - grpc
+            - grpcs
+            - http
+            - https
+      strip_path: true
+- connect_timeout: 600000
+  host: host.docker.internal
+  name: sales-guide-create-first-user
+  path: /api/v1/users/first-user
+  port: 5050
+  protocol: http
+  read_timeout: 400000
+  write_timeout: 400000
+  retries: 2
+  routes:
+    - name: create-first-user
+      methods:
+        - POST
+      https_redirect_status_code: 426
+      path_handling: v0
+      paths:
+        - /sales-guide/api/v1/users/first-user
       preserve_host: true
       protocols:
         - http

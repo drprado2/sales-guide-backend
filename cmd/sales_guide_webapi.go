@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/drprado2/react-redux-typescript/configs"
 	"github.com/drprado2/react-redux-typescript/internal/adapters/http/company"
+	"github.com/drprado2/react-redux-typescript/internal/adapters/http/user"
 	"github.com/drprado2/react-redux-typescript/internal/adapters/repository"
 	"github.com/drprado2/react-redux-typescript/internal/adapters/utils"
 	"github.com/drprado2/react-redux-typescript/internal/domain/usecases"
@@ -21,6 +22,7 @@ import (
 	"github.com/openzipkin/zipkin-go"
 	zipkinhttp "github.com/openzipkin/zipkin-go/middleware/http"
 	zipkinreporter "github.com/openzipkin/zipkin-go/reporter/http"
+	"gopkg.in/auth0.v5/management"
 	"log"
 	"os"
 	"os/signal"
@@ -77,15 +79,21 @@ func main() {
 	}
 
 	companyRepository := repository.NewCompanySqlRepository(dbpool, tracerService)
+	userRepository := repository.NewUserSqlRepository(dbpool, tracerService)
 	cnpjValidator := new(utils.PaemureBrDocCnpjValidator)
 	colorService := new(utils.CssColorParserService)
 	valid, trans := createValidatorService()
+	auth0Manager, err := management.New(configs.Get().Auth0Domain, management.WithClientCredentials(configs.Get().Auth0ClientID, configs.Get().Auth0ClientSecret))
+	if err != nil {
+		log.Fatalf("unable to create auth0 manager: %+v\n", err)
+	}
 
-	usecases.Setup(companyRepository, tracerService, valid, trans)
+	usecases.Setup(companyRepository, userRepository, tracerService, valid, trans, auth0Manager)
 	utils2.Setup(colorService, cnpjValidator)
 
 	server := http_server2.NewServer(tracer).
-		WithRoutes(company.RegisterRouteHandlers)
+		WithRoutes(company.RegisterRouteHandlers).
+		WithRoutes(user.RegisterRouteHandlers)
 
 	go func() {
 		server.Start()

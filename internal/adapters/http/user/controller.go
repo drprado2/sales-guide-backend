@@ -1,4 +1,4 @@
-package company
+package user
 
 import (
 	"encoding/json"
@@ -12,33 +12,27 @@ import (
 
 func RegisterRouteHandlers(router *mux.Router) {
 	router.
-		Path("/v1/companies").
-		HandlerFunc(CreateCompanyAction).
-		Name("Create Company").
+		Path("/v1/users/first-user").
+		HandlerFunc(CreateFirstUserAction).
+		Name("Create First User").
 		Methods(httpserver.Post)
-
-	router.
-		Path("/v1/companies/{id}").
-		HandlerFunc(GetCompanyByIdAction).
-		Name("Get Company").
-		Methods(httpserver.Get)
 }
 
-func CreateCompanyAction(writter http.ResponseWriter, req *http.Request) {
+func CreateFirstUserAction(writter http.ResponseWriter, req *http.Request) {
 	writter.Header().Set("Content-Type", "application/json")
 
 	reqBody, _ := ioutil.ReadAll(req.Body)
-	model := new(usecases.CreateCompanyInput)
+	model := new(usecases.CreateFirstUserInput)
 	if err := json.Unmarshal(reqBody, model); err != nil {
 		response := map[string]string{
-			"error": err.Error(),
+			"error": "paramêtros de entrada inválidos.",
 		}
 		writter.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(writter).Encode(response)
 		return
 	}
 
-	res, err := usecases.CreateCompany(req.Context(), model)
+	res, err := usecases.CreateFirstUser(req.Context(), model)
 
 	if err != nil {
 		utils.HandleError(err, writter, req)
@@ -46,20 +40,5 @@ func CreateCompanyAction(writter http.ResponseWriter, req *http.Request) {
 	}
 
 	writter.WriteHeader(http.StatusCreated)
-	json.NewEncoder(writter).Encode(res)
-}
-
-func GetCompanyByIdAction(writter http.ResponseWriter, req *http.Request) {
-	writter.Header().Set("Content-Type", "application/json")
-
-	params := mux.Vars(req)
-	res, err := usecases.GetCompanyByID(req.Context(), params["id"])
-
-	if err != nil {
-		utils.HandleError(err, writter, req)
-		return
-	}
-
-	writter.WriteHeader(http.StatusOK)
 	json.NewEncoder(writter).Encode(res)
 }

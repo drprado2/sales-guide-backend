@@ -18,6 +18,7 @@ type (
 		SecondaryFontColor string    `json:"secondaryFontColor,omitempty"`
 		CreatedAt          time.Time `json:"createdAt,omitempty"`
 		UpdatedAt          time.Time `json:"UpdatedAt,omitempty"`
+		RowVersion         uint32    `json:"RowVersion,omitempty"`
 	}
 )
 
@@ -41,5 +42,6 @@ func GetCompanyByID(ctx context.Context, id string) (*GetCompanyOutput, error) {
 		SecondaryFontColor: company.SecondaryFontColor.Hex(),
 		CreatedAt:          company.CreatedAt,
 		UpdatedAt:          company.UpdatedAt,
+		RowVersion:         company.RowVersion,
 	}, nil
 }

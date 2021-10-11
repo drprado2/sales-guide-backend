@@ -25,11 +25,12 @@ require (
 	github.com/gosidekick/goconfig v1.3.0
 	github.com/jackc/pgx/v4 v4.10.1
 	github.com/jinzhu/copier v0.3.2
-	github.com/lib/pq v1.9.0 // indirect
+	github.com/lib/pq v1.9.0
 	github.com/mazznoer/csscolorparser v0.1.1
 	github.com/openzipkin/zipkin-go v0.2.5
 	github.com/paemuri/brdoc v1.1.2
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.8.0
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
+	gopkg.in/auth0.v5 v5.19.2
 )

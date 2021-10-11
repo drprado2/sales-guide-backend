@@ -6,8 +6,10 @@ import (
 	"github.com/drprado2/react-redux-typescript/internal/domain"
 	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
 	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
+	"github.com/drprado2/react-redux-typescript/pkg/ctxvals"
 	"github.com/drprado2/react-redux-typescript/pkg/logs"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"time"
 )
 
@@ -34,12 +36,15 @@ type (
 		SecondaryFontColor string    `json:"secondaryFontColor,omitempty"`
 		CreatedAt          time.Time `json:"createdAt,omitempty"`
 		UpdatedAt          time.Time `json:"UpdatedAt,omitempty"`
+		RowVersion         uint32    `json:"rowVersion,omitempty"`
 	}
 )
 
 func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompanyOutput, error) {
 	span, ctx := tracer.SpanFromContext(ctx)
 	defer span.Finish()
+
+	location := ctxvals.LocationOrDefault(ctx)
 
 	if err := payloadValidator.Struct(input); err != nil {
 		return nil, domain.PayloadErrorFromValidator(err, validatorTranslates)
@@ -93,6 +98,10 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		}
 		company.SecondaryFontColor = color
 	}
+	if err := company.ValidToSave(); err != nil {
+		logs.Logger(ctx).WithError(err).Warn("company invalid to save")
+		errGroup.Append(domain.NewConstraintError(err))
+	}
 
 	if errGroup.HasError() {
 		return nil, errGroup.AsError()
@@ -100,9 +109,16 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 
 	company.TotalColaborators = 0
 
-	if err := companyRepository.Create(ctx, company); err != nil {
+	rowversion, err := companyRepository.Create(ctx, company)
+	if err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			if err.Code == domain.PgUniqueConstraintErrorCode {
+				logs.Logger(ctx).WithError(err).Error("fail creating company with unique constraint error")
+				return nil, domain.NewConstraintError(errors.New("já existe uma empresa com esse documento"))
+			}
+		}
 		logs.Logger(ctx).WithError(err).Error("fail creating company with error in repository")
-		return nil, err
+		return nil, domain.NewInternalError(err)
 	}
 
 	return &CreateCompanyOutput{
@@ -115,7 +131,8 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		PrimaryFontColor:   company.PrimaryFontColor.Hex(),
 		SecondaryColor:     company.SecondaryColor.Hex(),
 		SecondaryFontColor: company.SecondaryFontColor.Hex(),
-		CreatedAt:          company.CreatedAt,
-		UpdatedAt:          company.UpdatedAt,
+		CreatedAt:          company.CreatedAt.In(location),
+		UpdatedAt:          company.UpdatedAt.In(location),
+		RowVersion:         rowversion,
 	}, nil
 }

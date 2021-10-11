@@ -9,9 +9,11 @@ import (
 )
 
 const (
-	internalErrorType   = "InternalError"
-	payloadErrorType    = "PayloadError"
-	constraintErrorType = "ConstraintError"
+	internalErrorType           = "InternalError"
+	payloadErrorType            = "PayloadError"
+	constraintErrorType         = "ConstraintError"
+	PgUniqueConstraintErrorCode = "23505"
+	PgForeignErrorCode          = "23503"
 )
 
 type (
@@ -31,6 +33,7 @@ type (
 
 var (
 	CompanyInvalidToSaveError = errors.New("empresa inválida, por favor verifique os campos obrigatórios")
+	UserInvalidToSaveError    = errors.New("usuário inválido, por favor verifique os campos obrigatórios")
 )
 
 func NewInternalError(err error) error {
