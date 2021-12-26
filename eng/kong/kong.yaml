@@ -87,45 +87,6 @@ plugins:
   - https
 services:
 - connect_timeout: 60000
-  host: upstream
-  name: example_service
-  port: 80
-  protocol: http
-  read_timeout: 60000
-  retries: 5
-  routes:
-  - https_redirect_status_code: 426
-    name: mocking
-    path_handling: v0
-    paths:
-    - /mock
-    plugins:
-    - config:
-        anonymous: null
-        hide_credentials: false
-        key_in_body: false
-        key_in_header: true
-        key_in_query: true
-        key_names:
-        - apikey
-        run_on_preflight: true
-      enabled: false
-      name: key-auth
-      protocols:
-      - grpc
-      - grpcs
-      - http
-      - https
-    preserve_host: false
-    protocols:
-    - http
-    - https
-    regex_priority: 0
-    request_buffering: true
-    response_buffering: true
-    strip_path: true
-  write_timeout: 60000
-- connect_timeout: 60000
   host: localhost
   name: sales-guide-list-sellers
   path: /api/v1/sellers
@@ -169,6 +130,51 @@ services:
     request_buffering: true
     response_buffering: true
     strip_path: true
+  write_timeout: 60000
+- connect_timeout: 60000
+  host: localhost
+  name: sales-guide-get-company-by-id
+  path: /api/v1/companies/\d+
+  plugins:
+    - config:
+        anonymous: null
+        claims_to_verify: null
+        cookie_names: []
+        header_names:
+          - authorization
+        key_claim_name: iss
+        maximum_expiration: 0
+        run_on_preflight: true
+        secret_is_base64: false
+        uri_param_names:
+          - jwt
+      enabled: true
+      name: jwt
+      protocols:
+        - grpc
+        - grpcs
+        - http
+        - https
+  port: 5050
+  protocol: http
+  read_timeout: 60000
+  retries: 5
+  routes:
+    - name: get-company-by-id
+      methods:
+        - GET
+      https_redirect_status_code: 426
+      path_handling: v0
+      paths:
+        - /sales-guide/v1/companies/\d+
+      preserve_host: false
+      protocols:
+        - http
+        - https
+      regex_priority: 0
+      request_buffering: true
+      response_buffering: true
+      strip_path: true
   write_timeout: 60000
 - connect_timeout: 600000
   host: host.docker.internal

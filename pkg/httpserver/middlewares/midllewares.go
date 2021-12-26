@@ -86,12 +86,13 @@ func SpanMiddleware(next http.Handler) http.Handler {
 func LocationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		timezone := r.Header.Get("x-timezone")
+		qq := r.Header.Get("X-Friend-User")
 		timeoffset := r.Header.Get("x-timezone-offset")
 		iTimeoffset := DefaultTimeOff
 		if timezone == "" {
 			timezone = DefaultTimezone
 		}
-		if timeoffset != "" {
+		if timeoffset != qq {
 			if v, err := strconv.Atoi(timeoffset); err == nil {
 				iTimeoffset = v
 			}

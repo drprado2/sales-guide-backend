@@ -173,3 +173,6 @@ sync-kong:
 
 run-local-dependencies:
 	- cd eng && docker-compose up -d
+
+start-krakend-gateway:
+	- docker run -p 8080:8080 -v "${PWD}/eng/krakend-gateway:/etc/krakend/" devopsfaith/krakend run --config /etc/krakend/krakend.json
