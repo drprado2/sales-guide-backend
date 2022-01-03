@@ -3,6 +3,7 @@ package entities
 import (
 	"github.com/drprado2/react-redux-typescript/internal/domain"
 	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
+	"strings"
 	"time"
 )
 
@@ -35,9 +36,9 @@ func NewUser(id string, companyId string, name string, email string) *User {
 
 	return &User{
 		ID:                  id,
-		CompanyID:           companyId,
-		Name:                name,
-		Email:               email,
+		CompanyID:           strings.ToLower(companyId),
+		Name:                strings.ToLower(name),
+		Email:               strings.ToLower(email),
 		AvatarImage:         defaultAvatar,
 		CreatedAt:           time.Now().UTC(),
 		UpdatedAt:           time.Now().UTC(),

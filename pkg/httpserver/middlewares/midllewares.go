@@ -63,7 +63,7 @@ func RequestLogMiddleware(next http.Handler) http.Handler {
 
 func CidMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cid := r.Header.Get("x-cid")
+		cid := r.Header.Get("X-Cid")
 		if cid == "" {
 			cid = uuid.NewString()
 		}
@@ -85,14 +85,13 @@ func SpanMiddleware(next http.Handler) http.Handler {
 
 func LocationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		timezone := r.Header.Get("x-timezone")
-		qq := r.Header.Get("X-Friend-User")
-		timeoffset := r.Header.Get("x-timezone-offset")
+		timezone := r.Header.Get("X-Timezone")
+		timeoffset := r.Header.Get("X-Timezone-Offset")
 		iTimeoffset := DefaultTimeOff
 		if timezone == "" {
 			timezone = DefaultTimezone
 		}
-		if timeoffset != qq {
+		if timeoffset != "" {
 			if v, err := strconv.Atoi(timeoffset); err == nil {
 				iTimeoffset = v
 			}
@@ -118,6 +117,16 @@ func LocationMiddleware(next http.Handler) http.Handler {
 			location = loc
 		}
 		reqCtx = ctxvals.WithLocation(reqCtx, location)
+		next.ServeHTTP(w, r.WithContext(reqCtx))
+	})
+}
+
+func UserMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := r.Header.Get("X-User-Id")
+		company := r.Header.Get("X-Company-Id")
+		email := r.Header.Get("X-Email")
+		reqCtx := ctxvals.WithUser(r.Context(), user, company, email)
 		next.ServeHTTP(w, r.WithContext(reqCtx))
 	})
 }

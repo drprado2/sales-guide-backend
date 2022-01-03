@@ -3,6 +3,7 @@ package entities
 import (
 	"github.com/drprado2/react-redux-typescript/internal/domain"
 	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
+	"strings"
 	"time"
 )
 
@@ -41,7 +42,7 @@ func NewCompany(id string, name string, cnpj *valueobjects.Cnpj) *Company {
 	return &Company{
 		ID:                 id,
 		Document:           cnpj,
-		Name:               name,
+		Name:               strings.ToLower(name),
 		Logo:               logoUri,
 		TotalColaborators:  0,
 		PrimaryColor:       pColor,

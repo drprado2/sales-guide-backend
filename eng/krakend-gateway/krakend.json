@@ -38,26 +38,43 @@
       "syslog": false,
       "stdout": true,
       "format": "default"
+    },
+    "github_com/devopsfaith/krakend-opencensus": {
+      "sample_rate": 100,
+      "reporting_period": 1,
+      "exporters": {
+        "zipkin": {
+          "collector_url": "http://localhost:9411/api/v2/spans",
+          "service_name": "api-gateway"
+        }
+      }
+    },
+    "github_com/devopsfaith/krakend/transport/http/server/handler": {
+      "name": ["correlation_id", "api-key-auth"],
+      "correlation_id": {},
+      "api-key-auth": {
+        "keys":  ["4bcbda6c-5b17-4dcf-90cc-c4fbd56d6ed6"],
+        "regex-urls": [
+          "^\\/sales-guide\\/api\\/v1\\/companies$",
+          "^\\/sales-guide\\/api\\/v1\\/users\\/first-user$"
+        ]
+      }
     }
   },
   "endpoints": [
     {
       "endpoint": "/sales-guide/api/v1/companies",
       "method": "POST",
-      "output_encoding": "json",
+      "output_encoding": "no-op",
+      "concurrent_calls": 1,
       "extra_config": {
         "github.com/devopsfaith/krakend-ratelimit/juju/router": {
           "maxRate": 15,
           "clientMaxRate": 5,
           "strategy": "ip",
           "key": ""
-        },
-        "github_com/devopsfaith/krakend/transport/http/server/handler": {
-          "name": "grpc-post",
-          "attachuserid": "rsc"
         }
       },
-      "concurrent_calls": 1,
       "headers_to_pass": [
         "Content-Type",
         "Content-Length",
@@ -65,22 +82,24 @@
         "User-Agent",
         "Accept",
         "Accept-Encoding",
-        "x-timezone",
-        "x-timezone-offset",
-        "x-apikey",
+        "X-Timezone",
+        "X-Timezone-Offset",
         "Authorization",
-        "x-cid",
-        "X-Friend-User"
+        "X-Cid",
+        "X-Friend-User",
+        "X-Api-Key",
+        "X-User-Id",
+        "X-Company-Id",
+        "X-Email"
       ],
       "backend": [
         {
           "url_pattern": "/api/v1/companies",
-          "encoding": "json",
+          "encoding": "no-op",
           "sd": "static",
           "method": "POST",
-          "extra_config": {},
           "host": [
-            "http://localhost:5050"
+            "http://172.19.32.1:5050"
           ],
           "disable_host_sanitize": false
         }
@@ -89,13 +108,13 @@
     {
       "endpoint": "/sales-guide/api/v1/companies/{companyID}",
       "method": "GET",
-      "output_encoding": "json",
+      "output_encoding": "no-op",
       "extra_config": {
         "github.com/devopsfaith/krakend-ratelimit/juju/router": {
           "maxRate": 15,
           "clientMaxRate": 5,
-          "strategy": "header",
-          "key": "Authorization"
+          "strategy": "ip",
+          "key": ""
         },
         "github.com/devopsfaith/krakend-jose/validator": {
           "alg": "RS256",
@@ -113,23 +132,76 @@
         "User-Agent",
         "Accept",
         "Accept-Encoding",
-        "x-timezone",
-        "x-timezone-offset",
-        "x-apikey",
+        "X-Timezone",
+        "X-Timezone-Offset",
         "Authorization",
-        "x-cid"
+        "X-Cid",
+        "X-Friend-User",
+        "X-Api-Key",
+        "X-User-Id",
+        "X-Company-Id",
+        "X-Email"
       ],
       "backend": [
         {
           "url_pattern": "/api/v1/companies/{companyID}",
-          "encoding": "json",
+          "encoding": "no-op",
           "sd": "static",
           "method": "GET",
-          "extra_config": {},
           "host": [
-            "http://localhost:5050"
+            "http://172.19.32.1:5050"
           ],
-          "disable_host_sanitize": false
+          "disable_host_sanitize": false,
+          "extra_config": {
+            "github.com/devopsfaith/krakend/transport/http/client/executor": {
+              "name": "proxy_wrapper",
+              "plugins": "[{\"Name\": \"auth0-headers\"}]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/sales-guide/api/v1/users/first-user",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "extra_config": {
+        "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+          "maxRate": 15,
+          "clientMaxRate": 5,
+          "strategy": "ip",
+          "key": ""
+        }
+      },
+      "concurrent_calls": 1,
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Host",
+        "User-Agent",
+        "Accept",
+        "Accept-Encoding",
+        "X-Timezone",
+        "X-Timezone-Offset",
+        "Authorization",
+        "X-Cid",
+        "X-Friend-User",
+        "X-Api-Key",
+        "X-User-Id",
+        "X-Company-Id",
+        "X-Email"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/api/v1/users/first-user",
+          "encoding": "no-op",
+          "sd": "static",
+          "method": "POST",
+          "host": [
+            "http://172.19.32.1:5050"
+          ],
+          "disable_host_sanitize": false,
+          "extra_config": {}
         }
       ]
     }

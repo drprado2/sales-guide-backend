@@ -13,27 +13,27 @@ func init() {
 	fmt.Println("headerModPlugin plugin is loaded!")
 }
 
-// HandlerRegisterer is the name of the symbol krakend looks up to try and register plugin
-var GRPCRegisterer = registerer("grpc-post")
+func main() {}
 
-type registerer string
+// HandlerRegisterer is the name of the symbol krakend looks up to try and register plugins
+var HandlerRegisterer registrable = registrable("headerModPlugin")
+
+type registrable string
 
 const outputHeaderName = "X-Friend-User"
+const pluginName = "headerModPlugin"
 
-func (r registerer) RegisterHandlers(f func(
+func (r registrable) RegisterHandlers(f func(
 	name string,
 	handler func(
 		context.Context,
 		map[string]interface{},
 		http.Handler) (http.Handler, error),
 )) {
-	f(string(r), r.registerHandlers)
+	f(pluginName, r.registerHandlers)
 }
 
-func main() {}
-
-func (r registerer) registerHandlers(ctx context.Context, extra map[string]interface{}, handler http.Handler) (http.Handler, error) {
-	// here you can get extra parameters informed in the config file
+func (r registrable) registerHandlers(ctx context.Context, extra map[string]interface{}, handler http.Handler) (http.Handler, error) {
 	attachUserID, ok := extra["attachuserid"].(string)
 	if !ok {
 		panic(errors.New("incorrect config").Error())
@@ -67,6 +67,8 @@ func (r registerer) registerHandlers(ctx context.Context, extra map[string]inter
 		*r2 = *r
 
 		r2.Header.Set(outputHeaderName, string(rsBodyBytes))
+
+		fmt.Println(fmt.Sprintf("****** RUNNING WITH SUCCESS %s", string(rsBodyBytes)))
 
 		handler.ServeHTTP(w, r2)
 	}), nil

@@ -11,6 +11,7 @@ const (
 	DefaultTimezone  = "America/Sao_Paulo"
 	DefaultTimeOff   = -3
 	LocationCtxKey   = "location"
+	UserCtxKey       = "user_details"
 )
 
 var (
@@ -48,4 +49,12 @@ func LocationOrDefault(ctx context.Context) *time.Location {
 		return value.(*time.Location)
 	}
 	return DefaultLocation
+}
+
+func WithUser(ctx context.Context, userID string, companyID string, email string) context.Context {
+	return context.WithValue(ctx, UserCtxKey, UserDetails{
+		UserID:    userID,
+		CompanyID: companyID,
+		Email:     email,
+	})
 }

@@ -17,3 +17,4 @@
 .terraform/
 /aws/
 /awscliv2.zip
+/eng/krakend-gateway/krakend

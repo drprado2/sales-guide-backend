@@ -1,6 +1,6 @@
 module github.com/drprado2/react-redux-typescript
 
-go 1.15
+go 1.16
 
 require (
 	github.com/aws/aws-lambda-go v1.24.0

@@ -176,3 +176,15 @@ run-local-dependencies:
 
 start-krakend-gateway:
 	- docker run -p 8080:8080 -v "${PWD}/eng/krakend-gateway:/etc/krakend/" devopsfaith/krakend run --config /etc/krakend/krakend.json
+
+deploy-krakend-plugins:
+	- cd eng/krakend-gateway/plugins/client/api_key_authentication &&\
+		go build -buildmode=plugin -o api-key-authentication.so api_key_authentication &&\
+		mv -f api-key-authentication.so ../../.. &&\
+		cd ../correlation_id &&\
+		go build -buildmode=plugin -o correlation-id.so correlation_id &&\
+		mv -f correlation-id.so ../../.. &&\
+		cd ../../proxy/proxy_wrapper &&\
+		go build -buildmode=plugin -o proxy-wrapper.so proxy_wrapper &&\
+		mv -f proxy-wrapper.so ../../..
+
