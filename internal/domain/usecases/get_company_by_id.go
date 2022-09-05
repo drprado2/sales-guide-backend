@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"github.com/drprado2/sales-guide/internal/domain"
 	"time"
 )
 
@@ -22,8 +23,8 @@ type (
 	}
 )
 
-func GetCompanyByID(ctx context.Context, id string) (*GetCompanyOutput, error) {
-	company, err := companyRepository.GetCompanyByID(ctx, id)
+func GetCompanyByID(ctx context.Context, sm *domain.ServiceManager, id string) (*GetCompanyOutput, error) {
+	company, err := sm.CompanyRepository.GetCompanyByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,7 @@ apply-flyway:
 export-aws-env-vars:
 	- export AWS_ACCESS_KEY_ID=AKIA4TOL2AU6WVIAJABA &&\
       export AWS_SECRET_ACCESS_KEY=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 &&\
-      export AWS_DEFAULT_REGION=us-east-2
+      export AWS_DEFAULT_REGION=sa-east-1
 
 test-cover:
 	- go test -race -coverprofile cover.out ./... && go tool cover -html=cover.out -o cover.html && xdg-open ./cover.html
@@ -46,6 +46,9 @@ aws-tf-apply:
 aws-list-s3:
 	- aws --endpoint-url http://localhost:4566 s3 ls --region sa-east-1
 
+aws-list-sqs:
+	- aws --endpoint-url http://localhost:4566 sqs list-queues --region sa-east-1
+
 aws-list-dynamo-tables:
 	- aws --endpoint-url http://localhost:4566 dynamodb list-tables --region sa-east-1
 
@@ -66,6 +69,9 @@ create-iam-user:
 
 publish-sns-test:
 	- aws sns publish --topic-arn arn:aws:sns:sa-east-1:000000000000:sns-test --message test --endpoint-url http://localhost:4566
+
+send-message-sqs-test:
+	- aws sqs send-message --queue-url http://localhost:4566/000000000000/test_queue --message-body '{"cid": "test", "companyId": "18b213fb-bd34-470b-9105-0f3a135b5f34", "userId": "39e2a325-725c-4c82-ab97-862cf6ffe2b9"}' --endpoint-url http://localhost:4566
 
 add-test-secretmanager:
 	- cd eng/secretmanager && aws secretsmanager put-secret-value --secret-id test-sm --secret-string file://test-secret-values.json --endpoint-url http://localhost:4566 --region sa-east-1
@@ -187,4 +193,18 @@ deploy-krakend-plugins:
 		cd ../../proxy/proxy_wrapper &&\
 		go build -buildmode=plugin -o proxy-wrapper.so proxy_wrapper &&\
 		mv -f proxy-wrapper.so ../../..
+
+deploy-jaeger:
+	- docker run -d --name jaeger \
+        -e COLLECTOR_ZIPKIN_HOST_PORT=:9412 \
+        -p 5775:5775/udp \
+        -p 6831:6831/udp \
+        -p 6832:6832/udp \
+        -p 5778:5778 \
+        -p 16686:16686 \
+        -p 14250:14250 \
+        -p 14268:14268 \
+        -p 14269:14269 \
+        -p 9412:9412 \
+        jaegertracing/all-in-one:1.31
 

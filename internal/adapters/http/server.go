@@ -1,11 +1,11 @@
-package httpserver
+package http
 
 import (
 	"context"
 	"fmt"
-	"github.com/drprado2/react-redux-typescript/configs"
-	middlewares2 "github.com/drprado2/react-redux-typescript/pkg/httpserver/middlewares"
-	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/drprado2/sales-guide/configs"
+	"github.com/drprado2/sales-guide/internal/domain"
+	logs2 "github.com/drprado2/sales-guide/pkg/instrumentation/logs"
 	"github.com/felixge/fgprof"
 	"github.com/gorilla/mux"
 	"github.com/openzipkin/zipkin-go"
@@ -30,7 +30,7 @@ type Server struct {
 	router           *mux.Router
 }
 
-func NewServer(tracer *zipkin.Tracer) *Server {
+func NewServer(tracer *zipkin.Tracer, serviceManager *domain.ServiceManager) *Server {
 	server := new(Server)
 
 	server.zipkinMiddleware = zipkinhttp.NewServerMiddleware(tracer, zipkinhttp.TagResponseSize(true))
@@ -42,7 +42,12 @@ func NewServer(tracer *zipkin.Tracer) *Server {
 
 	server.router = r.PathPrefix("/api").Subrouter()
 
-	return server
+	companyController := NewCompanyController(serviceManager)
+	userController := NewUserController(serviceManager)
+
+	return server.
+		WithRoutes(companyController.RegisterRouteHandlers).
+		WithRoutes(userController.RegisterRouteHandlers)
 }
 
 func (s *Server) WithRoutes(handler func(router *mux.Router)) *Server {
@@ -52,7 +57,7 @@ func (s *Server) WithRoutes(handler func(router *mux.Router)) *Server {
 	return s
 }
 
-func (s *Server) Start() {
+func (s *Server) Start() error {
 	envs := configs.Get()
 	http.Handle("/", s.router)
 
@@ -79,9 +84,11 @@ func (s *Server) Start() {
 
 	logs2.Logger(s.mainCtx).Infof("http server running at port %v, with env %v", envs.ServerPort, envs.ServerEnvironment)
 	if err := s.server.ListenAndServe(); err != nil {
-		logs2.Logger(s.mainCtx).WithError(err).Fatal("Fail starting http server")
-		panic(err)
+		logs2.Logger(s.mainCtx).WithError(err).Error("Fail starting http server")
+		return err
 	}
+
+	return nil
 }
 
 func (s *Server) Shutdown(ctx context.Context) {
@@ -91,11 +98,11 @@ func (s *Server) Shutdown(ctx context.Context) {
 
 func (s *Server) registerMiddlewares(router *mux.Router) {
 	router.Use(mux.CORSMethodMiddleware(router))
-	router.Use(middlewares2.PanicMiddleware)
-	router.Use(middlewares2.CidMiddleware)
-	router.Use(middlewares2.LocationMiddleware)
-	router.Use(middlewares2.UserMiddleware)
+	router.Use(PanicMiddleware)
+	router.Use(CidMiddleware)
+	router.Use(LocationMiddleware)
+	router.Use(UserMiddleware)
 	router.Use(s.zipkinMiddleware)
-	router.Use(middlewares2.SpanMiddleware)
-	router.Use(middlewares2.RequestLogMiddleware)
+	router.Use(SpanMiddleware)
+	router.Use(RequestLogMiddleware)
 }

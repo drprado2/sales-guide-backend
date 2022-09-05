@@ -6,8 +6,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/drprado2/react-redux-typescript/pkg/awsconfig"
-	"github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/drprado2/sales-guide/pkg/awsconfig"
+	"github.com/drprado2/sales-guide/pkg/instrumentation/logs"
 	"github.com/jinzhu/copier"
 	"reflect"
 )

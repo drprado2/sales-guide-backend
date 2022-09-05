@@ -3,11 +3,12 @@ package usecases
 import (
 	"context"
 	"errors"
-	"github.com/drprado2/react-redux-typescript/internal/domain"
-	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
-	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
-	"github.com/drprado2/react-redux-typescript/pkg/ctxvals"
-	"github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/drprado2/sales-guide/internal/domain"
+	"github.com/drprado2/sales-guide/internal/domain/entities"
+	errors2 "github.com/drprado2/sales-guide/internal/domain/errors"
+	"github.com/drprado2/sales-guide/internal/domain/valueobjects"
+	"github.com/drprado2/sales-guide/pkg/ctxvals"
+	"github.com/drprado2/sales-guide/pkg/instrumentation/logs"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"time"
@@ -40,29 +41,29 @@ type (
 	}
 )
 
-func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompanyOutput, error) {
-	span, ctx := tracer.SpanFromContext(ctx)
+func CreateCompany(ctx context.Context, sm *domain.ServiceManager, input *CreateCompanyInput) (*CreateCompanyOutput, error) {
+	span, ctx := sm.Tracer.SpanFromContext(ctx)
 	defer span.Finish()
 
 	location := ctxvals.LocationOrDefault(ctx)
 
-	if err := payloadValidator.Struct(input); err != nil {
-		return nil, domain.PayloadErrorFromValidator(err, validatorTranslates)
+	if err := sm.PayloadValidator.Struct(input); err != nil {
+		return nil, errors2.PayloadErrorFromValidator(err, sm.ValidatorTranslates)
 	}
 
-	errGroup := &domain.ErrorGroup{}
+	errGroup := &errors2.ErrorGroup{}
 
 	cnpj, err := valueobjects.NewCnpj(input.Document)
 	if err != nil {
 		logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid CNPJ")
-		errGroup.Append(domain.NewConstraintError(err))
+		errGroup.Append(errors2.NewConstraintError(err))
 	}
 	company := entities.NewCompany(uuid.NewString(), input.Name, cnpj)
 	if input.Logo != nil {
 		logoUri, err := valueobjects.NewUri(*input.Logo)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid logo URI")
-			errGroup.Append(domain.NewConstraintError(errors.New("logo marca inválida")))
+			errGroup.Append(errors2.NewConstraintError(errors.New("logo marca inválida")))
 		}
 		company.Logo = logoUri
 	}
@@ -70,7 +71,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		color, err := valueobjects.NewColor(*input.PrimaryColor)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid primary color")
-			errGroup.Append(domain.NewConstraintError(errors.New("cor primária inválida")))
+			errGroup.Append(errors2.NewConstraintError(errors.New("cor primária inválida")))
 		}
 		company.PrimaryColor = color
 	}
@@ -78,7 +79,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		color, err := valueobjects.NewColor(*input.PrimaryFontColor)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid primary font color")
-			errGroup.Append(domain.NewConstraintError(errors.New("cor de fonte primária inválida")))
+			errGroup.Append(errors2.NewConstraintError(errors.New("cor de fonte primária inválida")))
 		}
 		company.PrimaryFontColor = color
 	}
@@ -86,7 +87,7 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		color, err := valueobjects.NewColor(*input.SecondaryColor)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid secondary color")
-			errGroup.Append(domain.NewConstraintError(errors.New("cor secundária inválida")))
+			errGroup.Append(errors2.NewConstraintError(errors.New("cor secundária inválida")))
 		}
 		company.SecondaryColor = color
 	}
@@ -94,13 +95,13 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 		color, err := valueobjects.NewColor(*input.SecondaryFontColor)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating company with invalid secondary font color")
-			errGroup.Append(domain.NewConstraintError(errors.New("cor de fonte secundária inválida")))
+			errGroup.Append(errors2.NewConstraintError(errors.New("cor de fonte secundária inválida")))
 		}
 		company.SecondaryFontColor = color
 	}
-	if err := company.ValidToSave(); err != nil {
+	if err := company.Validate(); err != nil {
 		logs.Logger(ctx).WithError(err).Warn("company invalid to save")
-		errGroup.Append(domain.NewConstraintError(err))
+		errGroup.Append(errors2.NewConstraintError(err))
 	}
 
 	if errGroup.HasError() {
@@ -109,16 +110,16 @@ func CreateCompany(ctx context.Context, input *CreateCompanyInput) (*CreateCompa
 
 	company.TotalColaborators = 0
 
-	rowversion, err := companyRepository.Create(ctx, company)
+	rowversion, err := sm.CompanyRepository.Create(ctx, company)
 	if err != nil {
 		if err, ok := err.(*pq.Error); ok {
-			if err.Code == domain.PgUniqueConstraintErrorCode {
+			if err.Code == errors2.PgUniqueConstraintErrorCode {
 				logs.Logger(ctx).WithError(err).Error("fail creating company with unique constraint error")
-				return nil, domain.NewConstraintError(errors.New("já existe uma empresa com esse documento"))
+				return nil, errors2.NewConstraintError(errors.New("já existe uma empresa com esse documento"))
 			}
 		}
 		logs.Logger(ctx).WithError(err).Error("fail creating company with error in repository")
-		return nil, domain.NewInternalError(err)
+		return nil, errors2.NewInternalError(err)
 	}
 
 	return &CreateCompanyOutput{

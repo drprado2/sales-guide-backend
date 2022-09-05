@@ -1,8 +1,8 @@
 package entities
 
 import (
-	"github.com/drprado2/react-redux-typescript/internal/domain"
-	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
+	"github.com/drprado2/sales-guide/internal/domain/errors"
+	"github.com/drprado2/sales-guide/internal/domain/valueobjects"
 	"strings"
 	"time"
 )
@@ -48,12 +48,12 @@ func NewUser(id string, companyId string, name string, email string) *User {
 	}
 }
 
-func (u *User) ValidToSave() error {
+func (u *User) Validate() error {
 	if u.ID == "" ||
 		u.Name == "" ||
 		u.Email == "" ||
 		u.AvatarImage == nil {
-		return domain.CompanyInvalidToSaveError
+		return errors.CompanyInvalidToSaveError
 	}
 	return nil
 }

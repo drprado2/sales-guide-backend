@@ -3,13 +3,14 @@ package usecases
 import (
 	"context"
 	"errors"
-	"github.com/drprado2/react-redux-typescript/configs"
-	"github.com/drprado2/react-redux-typescript/internal/domain"
-	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
-	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
-	"github.com/drprado2/react-redux-typescript/pkg/ctxvals"
-	"github.com/drprado2/react-redux-typescript/pkg/logs"
-	"github.com/drprado2/react-redux-typescript/pkg/pointers"
+	"github.com/drprado2/sales-guide/configs"
+	"github.com/drprado2/sales-guide/internal/domain"
+	"github.com/drprado2/sales-guide/internal/domain/entities"
+	errors2 "github.com/drprado2/sales-guide/internal/domain/errors"
+	"github.com/drprado2/sales-guide/internal/domain/valueobjects"
+	"github.com/drprado2/sales-guide/pkg/ctxvals"
+	"github.com/drprado2/sales-guide/pkg/instrumentation/logs"
+	"github.com/drprado2/sales-guide/pkg/pointers"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"gopkg.in/auth0.v5/management"
@@ -47,25 +48,25 @@ type (
 	}
 )
 
-func CreateFirstUser(ctx context.Context, input *CreateFirstUserInput) (*CreateFirstUserOutput, error) {
-	span, ctx := tracer.SpanFromContext(ctx)
+func CreateFirstUser(ctx context.Context, sm *domain.ServiceManager, input *CreateFirstUserInput) (*CreateFirstUserOutput, error) {
+	span, ctx := sm.Tracer.SpanFromContext(ctx)
 	defer span.Finish()
 
 	location := ctxvals.LocationOrDefault(ctx)
 	timeoffset := ctxvals.TimeOffsetOrDefault(ctx)
 
-	if err := payloadValidator.Struct(input); err != nil {
-		return nil, domain.PayloadErrorFromValidator(err, validatorTranslates)
+	if err := sm.PayloadValidator.Struct(input); err != nil {
+		return nil, errors2.PayloadErrorFromValidator(err, sm.ValidatorTranslates)
 	}
 
-	errGroup := &domain.ErrorGroup{}
+	errGroup := &errors2.ErrorGroup{}
 
 	user := entities.NewUser(uuid.NewString(), input.CompanyId, input.Name, input.Email)
 	if input.AvatarImage != "" {
 		avatarUri, err := valueobjects.NewUri(input.AvatarImage)
 		if err != nil {
 			logs.Logger(ctx).WithError(err).Warn("fail creating user with invalid avatar URI")
-			errGroup.Append(domain.NewConstraintError(errors.New("avatar inválido")))
+			errGroup.Append(errors2.NewConstraintError(errors.New("avatar inválido")))
 		}
 		user.AvatarImage = avatarUri
 	}
@@ -75,34 +76,34 @@ func CreateFirstUser(ctx context.Context, input *CreateFirstUserInput) (*CreateF
 	}
 	user.Phone = input.Phone
 
-	if err := user.ValidToSave(); err != nil {
+	if err := user.Validate(); err != nil {
 		logs.Logger(ctx).WithError(err).Warn("user invalid to save")
-		errGroup.Append(domain.NewConstraintError(err))
+		errGroup.Append(errors2.NewConstraintError(err))
 	}
 
 	if errGroup.HasError() {
 		return nil, errGroup.AsError()
 	}
 
-	tx, err := userRepository.BeginTx(ctx)
+	tx, err := sm.UserRepository.BeginTx(ctx)
 	if err != nil {
-		return nil, domain.NewInternalError(err)
+		return nil, errors2.NewInternalError(err)
 	}
-	rowversion, err := userRepository.CreateTx(ctx, tx, user)
+	rowversion, err := sm.UserRepository.CreateTx(ctx, tx, user)
 	if err != nil {
 		tx.Rollback(ctx)
 		if err, ok := err.(*pq.Error); ok {
-			if err.Code == domain.PgUniqueConstraintErrorCode {
+			if err.Code == errors2.PgUniqueConstraintErrorCode {
 				logs.Logger(ctx).WithError(err).Error("fail creating user with unique constraint error")
-				return nil, domain.NewConstraintError(errors.New("já existe uma usuário com esse e-mail"))
+				return nil, errors2.NewConstraintError(errors.New("já existe uma usuário com esse e-mail"))
 			}
-			if err.Code == domain.PgForeignErrorCode {
+			if err.Code == errors2.PgForeignErrorCode {
 				logs.Logger(ctx).WithError(err).Error("fail creating user with foreign key error")
-				return nil, domain.NewConstraintError(errors.New("empresa inválida"))
+				return nil, errors2.NewConstraintError(errors.New("empresa inválida"))
 			}
 		}
 		logs.Logger(ctx).WithError(err).Error("fail creating company with error in repository")
-		return nil, domain.NewInternalError(err)
+		return nil, errors2.NewInternalError(err)
 	}
 
 	nameParts := strings.Split(user.Name, " ")
@@ -122,10 +123,10 @@ func CreateFirstUser(ctx context.Context, input *CreateFirstUserInput) (*CreateF
 		Blocked:      pointers.Bool(false),
 		Connection:   pointers.String("Username-Password-Authentication"),
 	}
-	if err := auth0manager.User.Create(authUser); err != nil {
+	if err := sm.Auth0manager.User.Create(authUser); err != nil {
 		tx.Rollback(ctx)
 		logs.Logger(ctx).WithError(err).Error("fail creating auth0 user")
-		return nil, domain.NewInternalError(err)
+		return nil, errors2.NewInternalError(err)
 	}
 
 	tx.Commit(ctx)

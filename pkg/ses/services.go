@@ -3,7 +3,7 @@ package ses
 import (
 	"context"
 	"github.com/aws/aws-sdk-go-v2/service/ses"
-	"github.com/drprado2/react-redux-typescript/pkg/awsconfig"
+	"github.com/drprado2/sales-guide/pkg/awsconfig"
 )
 
 const (

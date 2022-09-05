@@ -7,8 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	"github.com/drprado2/react-redux-typescript/configs"
-	"github.com/drprado2/react-redux-typescript/pkg/awsconfig"
+	"github.com/drprado2/sales-guide/configs"
+	"github.com/drprado2/sales-guide/pkg/awsconfig"
 	"io/ioutil"
 	"time"
 )

@@ -1,11 +1,11 @@
-package middlewares
+package http
 
 import (
 	"context"
 	"fmt"
-	"github.com/drprado2/react-redux-typescript/internal/models"
-	"github.com/drprado2/react-redux-typescript/pkg/ctxvals"
-	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/drprado2/sales-guide/internal/models"
+	"github.com/drprado2/sales-guide/pkg/ctxvals"
+	logs2 "github.com/drprado2/sales-guide/pkg/instrumentation/logs"
 	"github.com/google/uuid"
 	"github.com/openzipkin/zipkin-go"
 	"github.com/sirupsen/logrus"

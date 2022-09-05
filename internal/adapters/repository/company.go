@@ -2,9 +2,9 @@ package repository
 
 import (
 	"context"
-	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
-	apptracer2 "github.com/drprado2/react-redux-typescript/pkg/apptracer"
-	"github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/drprado2/sales-guide/internal/domain/entities"
+	apptracer2 "github.com/drprado2/sales-guide/pkg/instrumentation/apptracer"
+	"github.com/drprado2/sales-guide/pkg/instrumentation/logs"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 

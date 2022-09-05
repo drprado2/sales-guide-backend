@@ -3,7 +3,7 @@ package sqs
 import (
 	"context"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
-	"github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/drprado2/sales-guide/pkg/instrumentation/logs"
 	"strconv"
 	"time"
 )

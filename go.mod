@@ -1,4 +1,4 @@
-module github.com/drprado2/react-redux-typescript
+module github.com/drprado2/sales-guide
 
 go 1.16
 

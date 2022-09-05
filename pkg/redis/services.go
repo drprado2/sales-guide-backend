@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/drprado2/react-redux-typescript/configs"
-	"github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/drprado2/sales-guide/configs"
+	"github.com/drprado2/sales-guide/pkg/instrumentation/logs"
 	"github.com/go-redis/redis/v8"
 	"time"
 )

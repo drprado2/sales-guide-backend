@@ -2,10 +2,10 @@ package repositories
 
 import (
 	"context"
-	"github.com/drprado2/react-redux-typescript/internal/models"
-	playerModels "github.com/drprado2/react-redux-typescript/internal/models/players"
-	apptracer2 "github.com/drprado2/react-redux-typescript/pkg/apptracer"
-	logs2 "github.com/drprado2/react-redux-typescript/pkg/logs"
+	"github.com/drprado2/sales-guide/internal/models"
+	playerModels "github.com/drprado2/sales-guide/internal/models/players"
+	apptracer2 "github.com/drprado2/sales-guide/pkg/instrumentation/apptracer"
+	logs2 "github.com/drprado2/sales-guide/pkg/instrumentation/logs"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"runtime/debug"

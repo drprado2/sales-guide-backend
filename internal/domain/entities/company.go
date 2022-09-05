@@ -1,8 +1,10 @@
 package entities
 
 import (
-	"github.com/drprado2/react-redux-typescript/internal/domain"
-	"github.com/drprado2/react-redux-typescript/internal/domain/valueobjects"
+	"github.com/drprado2/sales-guide/internal/domain/errors"
+
+	//"github.com/drprado2/sales-guide/internal/domain"
+	"github.com/drprado2/sales-guide/internal/domain/valueobjects"
 	"strings"
 	"time"
 )
@@ -54,7 +56,7 @@ func NewCompany(id string, name string, cnpj *valueobjects.Cnpj) *Company {
 	}
 }
 
-func (c *Company) ValidToSave() error {
+func (c *Company) Validate() error {
 	if c.ID == "" ||
 		c.Name == "" ||
 		c.Logo == nil ||
@@ -63,7 +65,7 @@ func (c *Company) ValidToSave() error {
 		c.PrimaryFontColor == nil ||
 		c.SecondaryColor == nil ||
 		c.SecondaryFontColor == nil {
-		return domain.CompanyInvalidToSaveError
+		return errors.CompanyInvalidToSaveError
 	}
 	return nil
 }

@@ -15,11 +15,11 @@ const (
 
 var (
 	doOnce sync.Once
-	env    *Environment
+	env    *Config
 )
 
-//Environment this object keep the all variables environment
-type Environment struct {
+//Config this object keep the all variables environment
+type Config struct {
 	ServerPort            int    `cfg:"SERVER_PORT" cfgDefault:"5050" cfgRequired:"true"`
 	ServerHost            string `cfg:"SERVER_HOST" cfgDefault:"localhost" cfgRequired:"true"`
 	ServiceName           string `cfg:"SERVICE_NAME" cfgDefault:"Sales Guide" cfgRequired:"true"`
@@ -50,9 +50,9 @@ type Environment struct {
 }
 
 //Get return the instance of environment that keep the environment variables
-func Get() *Environment {
+func Get() *Config {
 	doOnce.Do(func() {
-		env = &Environment{}
+		env = &Config{}
 		err := goconfig.Parse(env)
 		if err != nil {
 			log.Fatal(err)
@@ -62,7 +62,7 @@ func Get() *Environment {
 }
 
 //Reset will reload the environment variables
-func Reset() *Environment {
+func Reset() *Config {
 	doOnce = sync.Once{}
 	return Get()
 }

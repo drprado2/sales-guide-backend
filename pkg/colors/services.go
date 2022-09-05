@@ -1,17 +1,13 @@
-package utils
+package colors
 
 import "github.com/mazznoer/csscolorparser"
 
-type (
-	CssColorParserService struct{}
-)
-
-func (*CssColorParserService) IsValid(color string) error {
+func IsValid(color string) error {
 	_, err := csscolorparser.Parse(color)
 	return err
 }
 
-func (*CssColorParserService) AsRgb(color string) string {
+func AsRgb(color string) string {
 	v, err := csscolorparser.Parse(color)
 	if err != nil {
 		return ""
@@ -19,7 +15,7 @@ func (*CssColorParserService) AsRgb(color string) string {
 	return v.RGBString()
 }
 
-func (*CssColorParserService) AsHex(color string) string {
+func AsHex(color string) string {
 	v, err := csscolorparser.Parse(color)
 	if err != nil {
 		return ""

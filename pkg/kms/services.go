@@ -5,7 +5,7 @@ import (
 	b64 "encoding/base64"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/kms"
-	"github.com/drprado2/react-redux-typescript/pkg/awsconfig"
+	"github.com/drprado2/sales-guide/pkg/awsconfig"
 )
 
 var (

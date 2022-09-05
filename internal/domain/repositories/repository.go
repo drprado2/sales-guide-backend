@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-	"github.com/drprado2/react-redux-typescript/internal/domain/entities"
+	"github.com/drprado2/sales-guide/internal/domain/entities"
 	"github.com/jackc/pgx/v4"
 )
 

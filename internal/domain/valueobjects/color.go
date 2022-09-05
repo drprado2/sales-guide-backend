@@ -1,7 +1,7 @@
 package valueobjects
 
 import (
-	utils2 "github.com/drprado2/react-redux-typescript/internal/utils"
+	"github.com/drprado2/sales-guide/pkg/colors"
 )
 
 type (
@@ -9,16 +9,16 @@ type (
 )
 
 func NewColor(value string) (*Color, error) {
-	if err := utils2.ColorSvc.IsValid(value); err != nil {
+	if err := colors.IsValid(value); err != nil {
 		return nil, err
 	}
 	return (*Color)(&value), nil
 }
 
 func (c *Color) Rgb() string {
-	return utils2.ColorSvc.AsRgb(string(*c))
+	return colors.AsRgb(string(*c))
 }
 
 func (c *Color) Hex() string {
-	return utils2.ColorSvc.AsHex(string(*c))
+	return colors.AsHex(string(*c))
 }

@@ -3,7 +3,7 @@ package logs
 import (
 	"context"
 	"github.com/aws/smithy-go/logging"
-	"github.com/drprado2/react-redux-typescript/configs"
+	"github.com/drprado2/sales-guide/configs"
 	log "github.com/sirupsen/logrus"
 	"os"
 )

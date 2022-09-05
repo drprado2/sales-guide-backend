@@ -1,13 +1,13 @@
-package utils
+package http
 
 import (
 	"encoding/json"
-	"github.com/drprado2/react-redux-typescript/internal/domain"
+	"github.com/drprado2/sales-guide/internal/domain/errors"
 	"net/http"
 )
 
 func HandleError(err error, writter http.ResponseWriter, _ *http.Request) {
-	if _, ok := err.(*domain.InternalError); ok {
+	if _, ok := err.(*errors.InternalError); ok {
 		writter.WriteHeader(http.StatusInternalServerError)
 		response := map[string]string{
 			"error": "ocorreu um erro inesperado, por favor tente novamente.",
@@ -17,7 +17,7 @@ func HandleError(err error, writter http.ResponseWriter, _ *http.Request) {
 		}
 		return
 	}
-	if _, ok := err.(*domain.ConstraintError); ok {
+	if _, ok := err.(*errors.ConstraintError); ok {
 		writter.WriteHeader(http.StatusConflict)
 		response := map[string]string{
 			"error": err.Error(),
